@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 136" fill="none">
+  <title>EYRA</title>
+  <g stroke="#effbf6" stroke-width="6.6" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M13 14H92 M13 66H87 M13 119H92"/>
+    <path d="M200 14L256 68L312 14 M256 68V119"/>
+    <path d="M419 14H479C507 14 519 21 519 39C519 57 507 65 479 65H421V119 M469 65L510 119"/>
+    <path d="M615 119L669 14L725 119"/>
+  </g>
+</svg>

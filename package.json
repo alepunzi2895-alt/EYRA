@@ -1,0 +1,39 @@
+{
+  "name": "eyra",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev",
+    "dev:demo": "cross-env KB_LOCAL_DIR=./kb-demo next dev",
+    "build": "next build",
+    "model:export": "node --import tsx scripts/export-eye.ts",
+    "start": "next start",
+    "check": "tsc --noEmit && cross-env KB_LOCAL_DIR=./kb-demo node --env-file=.env --import tsx scripts/selftest.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "@googleapis/drive": "latest",
+    "@googleapis/gmail": "latest",
+    "@libsql/client": "^0.18.0",
+    "diff": "^7.0.0",
+    "fflate": "^0.8.2",
+    "js-yaml": "^4.1.0",
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "three": "^0.186.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/three": "^0.186.0",
+    "cross-env": "^10.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
