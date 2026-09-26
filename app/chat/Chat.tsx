@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,7 @@ export default function Chat({ initial, disabled = false, conversationId = "web"
   const sending = useRef(false);
   const [files, setFiles] = useState<File[]>([]), [preparing, setPreparing] = useState(false);
   const end = useRef<HTMLDivElement>(null);
+  const messageInput = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     if (!msgs.length) return;
     if (inline && end.current?.parentElement) end.current.parentElement.scrollTop = end.current.parentElement.scrollHeight;
@@ -84,9 +86,16 @@ export default function Chat({ initial, disabled = false, conversationId = "web"
       <div className="composer">
         <div className="voice-controls">
           {voice.microphone && <button className="sec" disabled={disabled || busy || voice.processing} aria-pressed={voice.listening} onClick={() => voice.dictate(text, value => { setText(value); setDictated(true); })}>{voice.listening ? "Termina" : voice.inputMode === "recording" && voice.cloud.enabled ? "Registra messaggio" : "Detta messaggio"}</button>}
+          {voice.appleMobile && <button type="button" className="sec" disabled={disabled || busy || voice.processing} onClick={() => {
+            // Focus must stay in the tap handler to open the iPhone keyboard.
+            flushSync(() => { voice.useKeyboard(); setDictated(true); });
+            messageInput.current?.focus();
+          }}>Usa microfono tastiera</button>}
+          {voice.dictationFailed && voice.cloud.enabled && voice.recordingSupported && <button type="button" className="sec" disabled={disabled || busy || voice.processing} onClick={() => voice.record(text, value => { setText(value); setDictated(true); })}>Registra e trascrivi</button>}
           {voice.available && <><button className="sec" disabled={voice.listening || voice.processing} aria-pressed={voice.enabled} onClick={voice.toggle}>{voice.enabled ? "Voce attiva" : "Attiva risposte vocali"}</button><button className="sec" onClick={voice.stop}>Ferma voce</button></>}
           {voice.selectedVoice.startsWith("ai:") && voice.cloud.enabled && <button className="sec" disabled={voice.listening || voice.processing} onClick={voice.resume}>Riprendi audio</button>}
           <span role="status">{voice.status}</span>
+          {voice.dictationFailed && !voice.cloud.enabled && <span>La registrazione alternativa richiede Audio AI. <a href="/setup#voce">Configura in Impostazioni → Voce</a>. Su iPhone puoi usare subito il microfono della tastiera.</span>}
         </div>
         {voice.available && <details className="voice-settings">
           <summary>Scegli voce</summary>
@@ -105,7 +114,7 @@ export default function Chat({ initial, disabled = false, conversationId = "web"
           <p>La scelta viene ricordata in questo browser e vale anche per «Ascolta». Le voci disponibili dipendono dal dispositivo; quelle online possono usare un servizio remoto.</p>
           {!voice.voices.length && <p>Il browser non ha ancora fornito l’elenco delle voci. Puoi provare la voce automatica.</p>}
         </details>}
-        <textarea rows={inline ? 2 : undefined} disabled={disabled || voice.listening || voice.processing} value={text} onChange={(e) => setText(e.target.value)} placeholder={disabled ? "Collega Claude e Turso nelle Impostazioni" : inline ? "Di cosa ci occupiamo? Scrivi o parla…" : "Scrivi o detta…"} aria-label="Messaggio"
+        <textarea ref={messageInput} rows={inline ? 2 : undefined} disabled={disabled || voice.listening || voice.processing} value={text} onChange={(e) => setText(e.target.value)} placeholder={disabled ? "Collega Claude e Turso nelle Impostazioni" : inline ? "Di cosa ci occupiamo? Scrivi o parla…" : "Scrivi o detta…"} aria-label="Messaggio"
           onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send(); }} />
         <button onClick={send} disabled={busy || disabled || voice.listening || voice.processing || preparing}>Invia</button>
         <small className="voice-help">{voice.processing ? "Trascrizione in corso…" : voice.inputMode === "recording" && voice.cloud.enabled ? "Registra, premi Termina e controlla il testo. L’audio viene inviato a OpenAI per la trascrizione." : voice.microphone ? "Controlla il testo dettato prima di inviare. La dettatura usa i servizi del browser; su iPhone puoi anche usare il microfono della tastiera." : "Dettatura non disponibile: usa HTTPS e consenti il microfono, oppure usa il microfono della tastiera."} {dictated && "Per approvare una modifica, invia il codice in un nuovo messaggio scritto."}</small>

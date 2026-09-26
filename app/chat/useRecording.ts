@@ -54,5 +54,5 @@ export function useRecording() {
       if (id === generation.current) { setRecording(false); setStatus(e instanceof DOMException && e.name === "NotAllowedError" ? "Consenti il microfono nelle impostazioni del sito in Safari." : "Impossibile avviare la registrazione. Verifica HTTPS e permesso microfono."); }
     }
   }
-  return { supported, recording, processing, status, toggle, clearStatus() { setStatus(""); } };
+  return { supported, recording, processing, status, toggle, cancel() { cancel(); setRecording(false); setProcessing(false); setStatus(""); }, clearStatus() { setStatus(""); } };
 }

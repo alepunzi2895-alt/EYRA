@@ -13,17 +13,21 @@ export function useVoice() {
   const [available, setAvailable] = useState(false), [microphone, setMicrophone] = useState(false);
   const [enabled, setEnabled] = useState(false), [listening, setListening] = useState(false);
   const [status, setStatus] = useState("");
+  const [dictationStatus, setDictationStatus] = useState(""), [dictationFailed, setDictationFailed] = useState(false);
+  const [appleMobile, setAppleMobile] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState("");
   const [cloud, setCloud] = useState({ enabled: false, reason: "Verifico la configurazione delle voci AI…" });
   const cloudReady = useRef(false), cloudSpeaker = useRef<CloudSpeaker | null>(null);
   const [inputMode, setInputMode] = useState("browser");
+  const inputChosen = useRef(false);
   const recording = useRecording();
   const preferredVoice = useRef("");
   const recognition = useRef<BrowserDictation | null>(null), buffer = useRef(""), active = useRef(false);
   const mounted = useRef(true);
   useEffect(() => {
     mounted.current = true;
+    setAppleMobile(/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
     setAvailable("speechSynthesis" in window);
     const w = window as VoiceWindow;
     setMicrophone(window.isSecureContext && !!(w.SpeechRecognition || w.webkitSpeechRecognition));
@@ -34,7 +38,7 @@ export function useVoice() {
       cloudReady.current = data.enabled === true;
       setCloud({ enabled: data.enabled === true, reason: data.reason || "Audio AI non disponibile." });
       setAvailable(!!window.speechSynthesis || data.enabled === true);
-      if (data.enabled && window.isSecureContext && typeof MediaRecorder !== "undefined" && typeof navigator.mediaDevices?.getUserMedia === "function" && RECORDING_MIMES.some(m => MediaRecorder.isTypeSupported(m))) setInputMode("recording");
+      if (!inputChosen.current && data.enabled && window.isSecureContext && typeof MediaRecorder !== "undefined" && typeof navigator.mediaDevices?.getUserMedia === "function" && RECORDING_MIMES.some(m => MediaRecorder.isTypeSupported(m))) setInputMode("recording");
     }).catch(() => { if (mounted.current && !request.signal.aborted) setCloud({ enabled: false, reason: "Configurazione audio non raggiungibile. Ricarica la pagina per riprovare." }); });
     try { preferredVoice.current = localStorage.getItem(VOICE_STORAGE) || ""; setSelectedVoice(preferredVoice.current); } catch { /* Storage may be unavailable in private browsing. */ }
     const synth = window.speechSynthesis;
@@ -79,22 +83,25 @@ export function useVoice() {
   }
   function dictate(current: string, update: (text: string) => void) {
     if (recording.processing) return;
+    inputChosen.current = true;
     if (inputMode === "recording" && cloudReady.current && recording.supported) {
-      stop(); setStatus(""); void recording.toggle(current, update); return;
+      stop(); setStatus(""); setDictationStatus(""); setDictationFailed(false); void recording.toggle(current, update); return;
     }
     recording.clearStatus();
     if (listening) { recognition.current?.stop(); return; }
     stop();
     const w = window as VoiceWindow, Constructor = w.SpeechRecognition || w.webkitSpeechRecognition;
-    if (!Constructor) return;
+    if (!Constructor) { setDictationFailed(true); setDictationStatus("Riconoscimento non disponibile. Usa il microfono della tastiera."); return; }
     recognition.current?.dispose();
-    recognition.current = new BrowserDictation(() => new Constructor(), update, (on, message) => { if (mounted.current) { setListening(on); setStatus(message); } });
+    recognition.current = new BrowserDictation(() => new Constructor(), update, (on, message, failed) => { if (mounted.current) { setListening(on); setDictationStatus(message); setDictationFailed(!!failed); } });
     recognition.current.start(current);
   }
   return {
     available, microphone: microphone || (cloud.enabled && recording.supported), nativeMicrophone: microphone, recordingSupported: recording.supported,
-    enabled, listening: listening || recording.recording, processing: recording.processing, status: recording.status || status, dictate, push, voices, selectedVoice, cloud, aiVoices: AI_VOICES, inputMode,
-    setInputMode(mode: string) { if (listening || recording.recording || recording.processing) return; setInputMode(mode); recording.clearStatus(); setStatus(""); },
+    enabled, listening: listening || recording.recording, processing: recording.processing, status: recording.status || dictationStatus || status, dictate, push, voices, selectedVoice, cloud, aiVoices: AI_VOICES, inputMode, appleMobile, dictationFailed,
+    useKeyboard() { inputChosen.current = true; recognition.current?.dispose(); recording.cancel(); stop(); setListening(false); setDictationFailed(false); setDictationStatus("Tocca il microfono della tastiera iPhone per dettare. Se manca: Impostazioni iPhone → Generali → Tastiera → Abilita dettatura."); },
+    record(current: string, update: (text: string) => void) { if (!cloudReady.current || !recording.supported || recording.processing) return; inputChosen.current = true; recognition.current?.dispose(); setListening(false); stop(); setInputMode("recording"); setDictationFailed(false); setDictationStatus(""); void recording.toggle(current, update); },
+    setInputMode(mode: string) { if (listening || recording.recording || recording.processing) return; inputChosen.current = true; setInputMode(mode); recording.clearStatus(); setDictationStatus(""); setDictationFailed(false); setStatus(""); },
     selectVoice(uri: string) {
       stop(); recording.clearStatus(); preferredVoice.current = uri; setSelectedVoice(uri); setStatus("");
       try { if (uri) localStorage.setItem(VOICE_STORAGE, uri); else localStorage.removeItem(VOICE_STORAGE); }
@@ -102,7 +109,7 @@ export function useVoice() {
     },
     preview() { stop(); recording.clearStatus(); unlock(); speak("Ciao! Questa è la mia voce. Possiamo organizzare la giornata e leggere insieme i tuoi documenti."); },
     toggle() { stop(); recording.clearStatus(); unlock(); setEnabled(!enabled); setStatus(""); if (!enabled) speak("Voce attiva."); },
-    begin() { stop(); recording.clearStatus(); unlock(); active.current = enabled; },
+    begin() { stop(); recording.clearStatus(); setDictationStatus(""); unlock(); active.current = enabled; },
     reset() { buffer.current = ""; },
     stop() { stop(); recording.clearStatus(); setStatus(""); },
     resume() { cloudSpeaker.current?.unlock(); },

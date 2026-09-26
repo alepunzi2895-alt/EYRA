@@ -41,6 +41,25 @@ export async function testMobileAudio() {
     dictation.start(""); const last = recognitions.at(-1)!; dictation.dispose();
     assert.equal(last.aborted, true); assert.equal(last.onresult, null, "rilascio e rimozione callback allo smontaggio");
   } finally { dictation.dispose(); }
+  for (const emitsStart of [false, true]) {
+    const silent = new FakeRecognition(), observed: { on: boolean; message: string; failed?: boolean }[] = [];
+    if (!emitsStart) silent.start = () => {};
+    let creations = 0;
+    const stalled = new BrowserDictation(() => { creations++; return silent; }, () => assert.fail("nessuna parola ricevuta"), (on, message, failed) => observed.push({ on, message, failed }), 30);
+    try {
+      stalled.start("Testo da conservare.");
+      await new Promise(resolve => setTimeout(resolve, 80));
+      assert.equal(observed.at(-1)?.on, false);
+      assert.equal(observed.at(-1)?.failed, true);
+      assert.match(observed.at(-1)!.message, /Non arrivano parole/);
+      assert.equal(silent.aborted, true); assert.equal(silent.onresult, null);
+      assert.equal(creations, 1, "un blocco silenzioso non deve riavviare in ciclo il microfono");
+    } finally { stalled.dispose(); }
+  }
+  let constructorError = false;
+  const unavailable = new BrowserDictation(() => { throw new Error("not supported"); }, () => {}, (on, _message, failed) => { constructorError = !on && !!failed; });
+  unavailable.start(""); assert.equal(constructorError, true); unavailable.dispose();
+  console.log("✓ Safari senza eventi/risultati: timeout, microfono rilasciato, recupero esplicito e costruttore non disponibile");
   assert.equal(recordingFormat("audio/mp4;codecs=mp4a.40.2"), "mp4");
   assert.equal(recordingFormat("audio/webm;codecs=opus"), "webm");
   assert.equal(recordingFormat("text/plain"), null);

@@ -18,6 +18,10 @@ Con Audio AI attivo il microfono usa, dove supportato, **Registra e trascrivi**:
 
 La dettatura nativa conserva il testo tra brevi sessioni, sostituisce le ipotesi parziali senza duplicarle e accetta il risultato finale dopo «Termina». Si ferma dopo 90 secondi o due riavvii senza nuove parole; errori di permesso/rete non provocano riavvii infiniti. Microfono e riproduzione richiedono un gesto esplicito; se Safari sospende l’audio AI, usa «Riprendi audio». Non sono garantiti ascolto o riproduzione a schermo bloccato. Senza permesso microfono resta disponibile il testo.
 
+Se non arrivano risultati per 15 secondi, l’app interrompe il riconoscimento, libera il microfono e mostra le alternative; l’avvio del servizio non viene presentato come prova che stia ricevendo parole. Questo copre anche il blocco senza eventi segnalato su [WebKit](https://bugs.webkit.org/show_bug.cgi?id=321436), senza presumere che sia la causa di ogni errore Safari. WebKit documenta inoltre che il riconoscimento usa il servizio di [Siri](https://webkit.org/blog/11648/new-webkit-features-in-safari-14-1/).
+
+Su iPhone il pulsante **Usa microfono tastiera** interrompe l’eventuale riconoscimento bloccato e apre il campo: tocca poi il microfono della tastiera Apple. Il sito non può premere quel microfono al posto tuo. Se manca, abilita **Impostazioni iPhone → Generali → Tastiera → Abilita dettatura** ([guida Apple](https://support.apple.com/en-euro/guide/iphone/iph2c0651d2/ios)). Non occorre la chiave OpenAI; il messaggio viene marcato come dettato e non autorizza patch. Quando Audio AI è già configurato, dopo un errore è disponibile anche **Registra e trascrivi**, attivato soltanto con un nuovo tocco.
+
 I campi principali usano almeno 16 px sui dispositivi touch, i comandi vocali hanno area di tocco di almeno 44 px e la chat usa l’altezza dinamica dello schermo. Tabelle e codice nelle risposte scorrono internamente.
 
 API di riferimento: [Messages Anthropic](https://platform.claude.com/docs/en/api/messages/create), [streaming](https://platform.claude.com/docs/en/build-with-claude/streaming), [Web Speech](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API).
