@@ -32,7 +32,6 @@ export default function Navigation({ name, tagline, inbox }: { name: string; tag
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h12" /></svg>
         <span>Menu</span>
       </button>
-      <Link href="/" className="app-brand" aria-label={`${name} · Home`}><Wordmark name={name} /></Link>
       <span className="app-location">{current}</span>
     </header>
     <dialog id="menu-principale" className="navigation-drawer" ref={drawer} aria-labelledby="menu-titolo"
