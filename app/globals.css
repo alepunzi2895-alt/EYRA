@@ -127,6 +127,12 @@ body:has(.cockpit) main { max-width: none; padding: 0; background:
 .band-head h2 { margin: 0; }
 .band-head a { color: var(--fondale); font-size: 13px; }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.calendar-agenda { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 18px; }
+.calendar-agenda li { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 24px; border: 1px solid var(--linea); border-top: 2px solid var(--boa); border-radius: var(--r-s); background: var(--pannello); overflow-wrap: anywhere; }
+.calendar-agenda time { color: var(--alga); font-size: 12px; }
+.calendar-agenda strong { font-size: 18px; font-weight: 500; }
+.calendar-agenda span { font-size: 12px; color: var(--fondale); }
+.calendar-agenda a { margin-top: auto; font-size: 12px; }
 .day { min-height: 88px; border: 1px solid rgba(110,231,183,.14); border-radius: 6px; padding: 8px; background: rgba(255,255,255,.035); display: grid; align-content: start; gap: 4px; }
 .day.hot { border-color: rgba(16,185,129,.72); background: rgba(16,185,129,.10); }
 .day span { color: #9ebcaf; font-size: 12px; }

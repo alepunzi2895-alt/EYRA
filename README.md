@@ -13,6 +13,7 @@ Il nome **EYRA** è fisso. Il significato di **EYE + RA** e dell’occhio cosmic
 - **Occhio 3D**: avatar geometrico ispirato al riferimento, con iride smeraldo, lamelle metalliche, lente e satelliti animati. Trascina o usa le frecce per ruotarlo; Pausa e Centra controllano la vista. `/occhio` apre la vista ampliata e il download GLB. Rigenera il file con `npm run model:export` dopo modifiche a `lib/eye-model.ts`.
 - **Home**: scadenze 60 giorni, stato archivio. Menu laterale chiuso all’apertura, layout a tutta larghezza e font Montserrat ispirato al riferimento visivo.
 - **Archivio**: navigazione cartelle, schede con fonte di ogni dato.
+- **Google Calendar**: `/calendario` mostra gli appuntamenti e l’agente può consultarli. Sincronizzazione unidirezionale delle scadenze attive e confermate dei prossimi 90 giorni, manuale o giornaliera. Configurazione e verifica in Impostazioni → Calendar; nessuna chiamata Google in demo.
 - **Carica**: estratti conto, fatture (PDF, XML, p7m), contratti → analisi e proposte.
 - **Da approvare**: diff, conflitti, Applica/Rifiuta.
 - **Chat / WhatsApp**: stesso agente, legge PDF/immagini/Excel/XML, cerca normativa, capisce spagnolo e inglese, risponde in italiano.

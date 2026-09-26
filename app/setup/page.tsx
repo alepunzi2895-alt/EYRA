@@ -5,6 +5,7 @@ import { APP_NAME, detail, DEFS, SECRETS, Key, Group } from "@/lib/config";
 import { dbKind } from "@/lib/db";
 import { Campi, Campo, Verifica, Copia } from "./Campi";
 import Profile from "./Profile";
+import CalendarSettings from "./CalendarSettings";
 import { readProfile, type UserProfile } from "@/lib/profile";
 import { archiveIssue } from "@/lib/availability";
 
@@ -15,7 +16,7 @@ const DB_TESTO = {
   turso: "Collegato a Turso. Le impostazioni qui sotto si salvano nel database.",
   assente: "Nessun database: imposta TURSO_DATABASE_URL e TURSO_AUTH_TOKEN in .env, poi riavvia l'app.",
 };
-const SEZIONI = [["generale", "Generale"], ["profilo", "Parlami di te"], ["database", "Database"], ["claude", "Claude"], ["google", "Google"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
+const SEZIONI = [["generale", "Generale"], ["profilo", "Parlami di te"], ["database", "Database"], ["claude", "Claude"], ["google", "Google"], ["calendar", "Calendar"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
 
 function Segreti({ group, nonServe = [] }: { group: string; nonServe?: string[] }) {
   return (
@@ -89,7 +90,7 @@ export default async function Setup() {
       </section>
 
       <section className="passo" id="google">
-        <h2>Google Drive e Gmail</h2>
+        <h2>Google Drive, Gmail e Calendar</h2>
         <p>URI di reindirizzamento da registrare nel client OAuth su Google Cloud:</p>
         <Copia testo={`${origin}/api/setup/google/callback`} />
         <Segreti group="google" />
@@ -103,6 +104,26 @@ export default async function Setup() {
         </div>
         <Campi campi={campi("google", { GMAIL_LABEL: { placeholder: nome } })} bloccato={bloccato} />
         <div className="azioni"><Verifica kind="drive" label="Verifica Drive" /><Verifica kind="gmail" label="Verifica Gmail" /></div>
+      </section>
+
+      <section className="passo" id="calendar">
+        <h2>Google Calendar</h2>
+        <p>Consulta gli appuntamenti e porta sul calendario le scadenze confermate di <Wordmark name={nome} inline />.</p>
+        <ol>
+          <li>Abilita <a href="https://console.cloud.google.com/apis/library/calendar-json.googleapis.com" target="_blank" rel="noreferrer">Google Calendar API</a> nello stesso progetto Google Cloud.</li>
+          <li>Premi «Ricollega Google» nella sezione Google e autorizza anche Calendar. Sostituisci <code>GOOGLE_REFRESH_TOKEN</code> su Vercel e fai Redeploy.</li>
+          <li>Carica i calendari, scegli la destinazione e salva la modalità desiderata. Per le scadenze puoi usare un calendario dedicato, creato da Google Calendar.</li>
+        </ol>
+        <CalendarSettings campi={campi("calendar", {
+          GOOGLE_CALENDAR_ID: { list: "google-calendars" },
+          GOOGLE_CALENDAR_MODE: { options: [{ value: "off", label: "Disattivato" }, { value: "read", label: "Solo lettura" }, { value: "sync", label: "Lettura e sincronizzazione" }] },
+        })} bloccato={bloccato} />
+        <p className="aiuto">Sincronizzazione a senso unico: archivio → Google, ogni giorno o con il pulsante qui sotto. Solo scadenze attive e confermate, entro 90 giorni, come eventi di un giorno intero. Non vengono creati inviti. Le scadenze rimosse dall’archivio vengono rimosse anche dal calendario; gli altri appuntamenti restano intatti. Gli eventi passati si conservano. Cambiando calendario, quelli già esportati restano nella destinazione precedente.</p>
+        <div className="azioni">
+          <Verifica kind="calendar" label="Verifica Calendar" />
+          <Verifica kind="calendar-sync" label="Sincronizza ora" />
+          <a href="/calendario" className="btn sec">Apri appuntamenti</a>
+        </div>
       </section>
 
       <section className="passo" id="whatsapp">
@@ -139,7 +160,7 @@ export default async function Setup() {
 
       <section className="passo" id="automatismi">
         <h2>Automatismi</h2>
-        <p>Ogni mattina alle 8 (ora di Madrid): promemoria scadenze, import email con etichetta «{etichetta}», backup la domenica.</p>
+        <p>Ogni mattina alle 8 (ora di Madrid): promemoria scadenze, import email con etichetta «{etichetta}», sincronizzazione Calendar se attiva, backup la domenica.</p>
         <Segreti group="automatismi" />
         <Campi campi={campi("automatismi")} bloccato={bloccato} />
         <div className="azioni">

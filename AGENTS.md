@@ -30,6 +30,7 @@ npm run build
 | `lib/patch.ts` | set/append/create, diff, conflitti, changelog, storage patch in `90-inbox/` |
 | `lib/agent.ts` | loop Codex + tool; system prompt = `AGENT.md` + router + directive dalla KB su Drive |
 | `lib/gmail.ts` | import email con etichetta `GMAIL_LABEL` (PEC inoltrata a Gmail) |
+| `lib/calendar.ts`, `lib/calendar-sync.ts` | lettura Google Calendar e sync unidirezionale delle scadenze confermate; demo senza chiamate Google |
 | `lib/fattura.ts` | parsing FatturaPA `.xml` / `.xml.p7m` |
 | `lib/reminders.ts` | promemoria a `REMINDER_DAYS` via template WhatsApp |
 | `lib/backup.ts` | zip settimanale in `_backup/` (ultimi 8) |
@@ -47,7 +48,7 @@ La logica del dominio (procedure, onboarding, regole) sta nei **markdown della K
 2. Trascrizione vocali WhatsApp (servizio speech-to-text, da scegliere).
 3. PEC via IMAP diretto (alternativa all'inoltro su Gmail).
 4. Gmail push (Pub/Sub) invece del polling giornaliero.
-5. Google Calendar: sync scadenze.
+5. Google Calendar: test su staging del connettore e della sync scadenze implementati; eventuale sync bidirezionale resta futura.
 6. Dedup webhook persistente (oggi in memoria per istanza) — ora si può fare su Turso.
 7. Paginazione e ricerca full-text migliore quando l'archivio cresce (>500 file).
 8. Pagina modifica manuale file con anteprima (sempre via patch).

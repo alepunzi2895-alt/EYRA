@@ -8,7 +8,7 @@ export const APP_NAME = "EYRA" as const;
  * Precedenza: valore salvato nel DB (Turso) > variabile d'ambiente > default.
  * I segreti NON passano da qui: restano solo in .env (vedi SECRETS).
  */
-export type Group = "generale" | "claude" | "google" | "whatsapp" | "telegram" | "automatismi";
+export type Group = "generale" | "claude" | "google" | "calendar" | "whatsapp" | "telegram" | "automatismi";
 type Def = { label: string; group: Group; def: string; help?: string; norm?: (v: string) => string; check?: RegExp; err?: string };
 
 const csv = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean).join(",");
@@ -24,6 +24,10 @@ export const DEFS = {
     help: "Si imposta da solo con «Crea archivio». È la parte finale dell'URL della cartella su Drive." },
   GMAIL_LABEL: { label: "Etichetta Gmail da importare", group: "google", def: "", norm: line, check: /^.{0,60}$/, err: "max 60 caratteri",
     help: "Vuoto = usa il nome dell'assistente. Se la cambi, rinomina anche l'etichetta in Gmail." },
+  GOOGLE_CALENDAR_ID: { label: "Calendario", group: "calendar", def: "primary", norm: line, check: /^[^\s\x00-\x1f]{1,1024}$/, err: "ID calendario non valido",
+    help: "primary = calendario principale. Puoi scegliere un calendario dall’elenco oppure copiare l’ID da Google Calendar → Impostazioni → Integra calendario." },
+  GOOGLE_CALENDAR_MODE: { label: "Modalità Calendar", group: "calendar", def: "off", check: /^(off|read|sync)$/, err: "scegli una modalità valida",
+    help: "La sincronizzazione invia le scadenze attive e confermate dei prossimi 90 giorni. Le modifiche su Google non cambiano l’archivio." },
   WA_ALLOWED_NUMBERS: { label: "Numeri autorizzati", group: "whatsapp", def: "", norm: phones, check: /^(\d{8,15}(,\d{8,15})*)?$/, err: "numeri con prefisso, solo cifre, separati da virgola",
     help: "Solo questi numeri possono scrivere all'assistente. Es. 393400000000,34600000000" },
   WA_DIGEST_NUMBERS: { label: "Numeri che ricevono i promemoria", group: "whatsapp", def: "", norm: phones, check: /^(\d{8,15}(,\d{8,15})*)?$/, err: "numeri con prefisso, solo cifre, separati da virgola",
@@ -50,7 +54,7 @@ export const SECRETS: { key: string; label: string; group: Group | "accesso" | "
   { key: "ANTHROPIC_API_KEY", label: "Chiave API", group: "claude" },
   { key: "GOOGLE_CLIENT_ID", label: "Client ID OAuth", group: "google" },
   { key: "GOOGLE_CLIENT_SECRET", label: "Client secret OAuth", group: "google" },
-  { key: "GOOGLE_REFRESH_TOKEN", label: "Accesso Drive e Gmail", group: "google" },
+  { key: "GOOGLE_REFRESH_TOKEN", label: "Accesso Drive, Gmail e Calendar", group: "google" },
   { key: "WA_PHONE_NUMBER_ID", label: "ID numero", group: "whatsapp" },
   { key: "WA_ACCESS_TOKEN", label: "Token di accesso", group: "whatsapp" },
   { key: "WA_APP_SECRET", label: "Chiave segreta app", group: "whatsapp" },

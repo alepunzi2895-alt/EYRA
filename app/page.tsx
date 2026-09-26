@@ -130,8 +130,8 @@ export default async function Home() {
         <div className="ops-grid">
           <section className="dashboard-band">
             <div className="band-head">
-              <h2>Calendario</h2>
-              <Link href="/chat">aggiungi scadenza</Link>
+              <h2>Scadenze</h2>
+              <Link href="/calendario">Google Calendar ↗</Link>
             </div>
             <div className="calendar-grid">
               {calendar.map(({ d, items }) => (

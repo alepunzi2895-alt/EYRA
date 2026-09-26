@@ -17,7 +17,7 @@ Tutti gli account sono **tuoi**. Lo sviluppatore ha solo accesso al codice (GitH
 
 ## 3. Google Cloud (con il tuo Gmail)
 1. console.cloud.google.com → nuovo progetto `eyra`.
-2. API e servizi → Libreria → abilita **Google Drive API** e **Gmail API**.
+2. API e servizi → Libreria → abilita **Google Drive API**, **Gmail API** e **Google Calendar API**.
 3. Schermata consenso OAuth → *Esterno* → nome app «EYRA» → aggiungi tua email tra gli utenti di test → poi **Pubblica app** (altrimenti l'accesso scade ogni 7 giorni). Google mostrerà «app non verificata»: è normale per uso personale, clicca Avanzate → Continua.
 4. Credenziali → Crea → ID client OAuth → *Applicazione web* → URI di reindirizzamento: `https://<nome-progetto>.vercel.app/api/setup/google/callback` (lo aggiorni dopo il passo 5 se il nome cambia).
 5. Copia **ID client** e **secret**.
@@ -69,6 +69,22 @@ Telegram usa un bot e ID di chat private, non numeri di telefono.
 6. Scrivi al bot. Sono supportati messaggi di testo e approvazioni `ok CODICE`; documenti e immagini si caricano dal sito. L’assistente richiede Anthropic e l’archivio Google configurati. I promemoria automatici usano ancora WhatsApp.
 
 Il webhook verifica il segreto Telegram prima di leggere l’aggiornamento, accetta solo chat private autorizzate e ignora gruppi e canali. `/start` e `/id` restituiscono soltanto l’ID della chat del mittente, senza accedere all’archivio. Deduplica dei retry: best effort in memoria per istanza, come WhatsApp.
+
+## Collegare Google Calendar
+
+1. Abilita **Google Calendar API** nello stesso progetto Google Cloud usato per Drive e Gmail.
+2. In Impostazioni → Google premi **Ricollega Google** e autorizza anche Calendar. Il consenso richiede `calendar.events` e `calendar.calendarlist.readonly`, oltre agli scope di Drive e Gmail. Il token precedente non acquisisce i nuovi permessi da solo: copia il nuovo `GOOGLE_REFRESH_TOKEN` nelle variabili Vercel e fai Redeploy. Non incollare token nella chat o nell’archivio.
+3. In Impostazioni → Calendar premi **Carica i miei calendari**. Scegli `primary` oppure un ID dall’elenco. Per tenere separate le scadenze puoi creare un calendario dedicato in Google Calendar. Servono permessi di scrittura per sincronizzare.
+4. Seleziona **Lettura e sincronizzazione**, salva e premi **Verifica Calendar**, poi **Sincronizza ora**. La modalità iniziale è disattivata. «Solo lettura» consente di consultare gli appuntamenti senza esportare le scadenze.
+5. Apri **Calendario** dal menu: mostra fino a 50 appuntamenti nei prossimi 30 giorni, con il fuso del calendario. L’assistente può leggere fino a 90 giorni tramite `calendar_eventi`, anche su WhatsApp e Telegram quando la chat è configurata.
+
+La sincronizzazione è archivio → Google, manuale e nel cron giornaliero esistente. Include scadenze e fine contratti attivi con `validato: true`, entro 90 giorni, ed espande le ricorrenze in singoli eventi di giornata intera. Non esporta patch ancora da approvare. Gli eventi hanno identificatori stabili e una marcatura privata legata alla cartella Drive: le esecuzioni successive aggiornano gli eventi esistenti senza duplicarli e rimuovono solo gli eventi gestiti, futuri ed entro la finestra, non più presenti tra le scadenze confermate. Gli eventi personali e passati restano intatti. Gli eventi esportati non invitano partecipanti e inizialmente non hanno notifiche Calendar; i promemoria WhatsApp esistenti restano separati.
+
+Le modifiche fatte direttamente a un evento gestito su Google vengono riallineate alla KB alla sincronizzazione successiva; non vengono importate nell’archivio. Un evento eliminato su Google viene ricreato se la scadenza è ancora attiva e confermata. Per eliminarlo definitivamente, modifica la scadenza in EYRA tramite patch approvata. Cambiando calendario o archivio, gli eventi nella vecchia destinazione restano lì; disattivare il connettore ferma le esecuzioni senza cancellarli.
+
+La demo blocca ogni chiamata Calendar, anche con credenziali reali presenti. I test simulano Google; per la prova completa usa uno staging con archivio e account di prova. Se una chiamata fallisce a metà, alcune operazioni possono essere già state applicate: ripetere la sincronizzazione riallinea lo stato. Le scritture si fermano se l’archivio non è leggibile o non è valido. Il connettore non aggiunge segreti al database.
+
+Riferimenti: [scope Google Calendar](https://developers.google.com/workspace/calendar/api/auth), [lettura eventi](https://developers.google.com/workspace/calendar/api/v3/reference/events/list), [creazione eventi](https://developers.google.com/workspace/calendar/api/v3/reference/events/insert).
 
 ## Navigare prima di collegare Google
 

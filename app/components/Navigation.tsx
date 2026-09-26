@@ -14,6 +14,7 @@ export default function Navigation({ name, tagline, inbox }: { name: string; tag
 
   const links = [
     { href: "/", label: "Home" },
+    { href: "/calendario", label: "Calendario" },
     { href: "/cartella", label: "Archivio" },
     { href: "/carica", label: "Carica" },
     { href: "/inbox", label: "Da approvare" },

@@ -34,7 +34,14 @@ export async function salva(fd: FormData): Promise<Esito> {
   return { ok: "Salvato. Le altre istanze si aggiornano entro 30 secondi." };
 }
 
-export type Prova = "db" | "claude" | "drive" | "gmail" | "whatsapp" | "whatsapp-invio" | "telegram" | "telegram-collega";
+export type Prova = "db" | "claude" | "drive" | "gmail" | "calendar" | "calendar-sync" | "whatsapp" | "whatsapp-invio" | "telegram" | "telegram-collega";
+
+export async function calendariDisponibili() {
+  const cookie = (await cookies()).get("auth")?.value;
+  if (!cookie || cookie !== await authToken()) return { error: "Sessione scaduta. Accedi di nuovo." };
+  try { return { calendars: await (await import("@/lib/calendar")).listCalendars() }; }
+  catch (e) { return { error: e instanceof Error ? e.message : "Impossibile leggere i calendari." }; }
+}
 
 const need = (...keys: string[]) => {
   const miss = keys.filter((k) => !process.env[k]);
@@ -42,8 +49,16 @@ const need = (...keys: string[]) => {
 };
 
 export async function prova(kind: Prova): Promise<Esito> {
+  const cookie = (await cookies()).get("auth")?.value;
+  if (!cookie || cookie !== await authToken()) return { error: "Sessione scaduta. Accedi di nuovo." };
   try {
     switch (kind) {
+      case "calendar": return { ok: await (await import("@/lib/calendar")).calendarStatus() };
+      case "calendar-sync": {
+        const r = await (await import("@/lib/calendar")).syncCalendar();
+        revalidatePath("/calendario");
+        return { ok: `Sincronizzazione completata: ${r.created} create, ${r.updated} aggiornate, ${r.removed} rimosse, ${r.unchanged} già allineate.` };
+      }
       case "telegram": {
         need("TELEGRAM_BOT_TOKEN");
         return { ok: await (await import("@/lib/telegram")).telegramStatus() };

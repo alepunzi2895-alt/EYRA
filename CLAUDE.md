@@ -47,7 +47,7 @@ La logica del dominio (procedure, onboarding, regole) sta nei **markdown della K
 2. Trascrizione vocali WhatsApp (servizio speech-to-text, da scegliere).
 3. PEC via IMAP diretto (alternativa all'inoltro su Gmail).
 4. Gmail push (Pub/Sub) invece del polling giornaliero.
-5. Google Calendar: sync scadenze.
+5. Google Calendar: test su staging del connettore e della sync scadenze implementati; eventuale sync bidirezionale resta futura.
 6. Dedup webhook persistente (oggi in memoria per istanza) — ora si può fare su Turso.
 7. Paginazione e ricerca full-text migliore quando l'archivio cresce (>500 file).
 8. Pagina modifica manuale file con anteprima (sempre via patch).

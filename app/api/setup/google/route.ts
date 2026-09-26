@@ -3,7 +3,8 @@ import { auth } from "@googleapis/drive";
 import crypto from "node:crypto";
 
 export const runtime = "nodejs";
-const SCOPES = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/gmail.modify"];
+const SCOPES = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/gmail.modify",
+  "https://www.googleapis.com/auth/calendar.events", "https://www.googleapis.com/auth/calendar.calendarlist.readonly"];
 
 export async function GET(req: NextRequest) {
   const redirect = `${req.nextUrl.origin}/api/setup/google/callback`;

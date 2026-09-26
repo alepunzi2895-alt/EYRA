@@ -3,18 +3,20 @@ import { sendReminders, notify } from "@/lib/reminders";
 import { importEmails } from "@/lib/gmail";
 import { backup } from "@/lib/backup";
 import { pendingPatches } from "@/lib/patch";
+import { dailyCalendarSync } from "@/lib/calendar";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-/** Un solo cron giornaliero (limite piano Hobby): promemoria, import email, backup la domenica. */
+/** Un solo cron giornaliero: promemoria, Calendar, import email, backup la domenica. */
 export async function GET(req: NextRequest) {
-  if (req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) return new NextResponse("unauthorized", { status: 401 });
+  if (!process.env.CRON_SECRET || req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) return new NextResponse("unauthorized", { status: 401 });
   const out: Record<string, unknown> = {};
   const step = async (name: string, fn: () => Promise<unknown>) => {
     try { out[name] = await fn(); } catch (e: any) { out[name] = `errore: ${e?.message ?? e}`; console.error(name, e); }
   };
   await step("promemoria", sendReminders);
+  await step("calendar", dailyCalendarSync);
   await step("email", async () => {
     const r = await importEmails();
     if (r.length) {

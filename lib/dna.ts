@@ -100,9 +100,9 @@ export const SPECIALISTS: readonly Specialist[] = [
   {
     id: "coach", name: "Personal Coach", subject: "Obiettivi · Priorità · Continuità",
     description: "Aiuta a dare ordine alle intenzioni e a trasformarle in prossimi passi concreti.",
-    available: ["Supporta in chat la definizione di obiettivi, priorità e passi successivi.", "Rilegge decisioni e scadenze registrate per un follow-up su richiesta. I promemoria delle scadenze richiedono WhatsApp e automatismi configurati."],
+    available: ["Supporta in chat la definizione di obiettivi, priorità e passi successivi.", "Rilegge decisioni e scadenze registrate per un follow-up su richiesta. I promemoria delle scadenze richiedono WhatsApp e automatismi configurati.", "Legge gli appuntamenti Google Calendar e sincronizza le scadenze confermate, dopo il collegamento nelle Impostazioni."],
     learns: ["Obiettivi, vincoli, preferenze organizzative e criteri decisionali condivisi dalla titolare.", "Correzioni e risultati documentati, conservati nell’archivio dopo approvazione."],
-    future: ["Sincronizzazione con Google Calendar e follow-up autonomi dedicati agli obiettivi richiedono sviluppo."],
+    future: ["I follow-up autonomi dedicati agli obiettivi e la sincronizzazione bidirezionale del calendario richiedono sviluppo."],
     documents: "Note sugli obiettivi, piani di lavoro, decisioni, scadenze e feedback forniti.",
     example: "Tre progetti concorrenti vengono confrontati per urgenza, impegno e obiettivi; la titolare sceglie le priorità da conservare.",
     connections: ["business", "cfo", "grants"], sources: ["kb/50-moduli/coaching/coaching.md", "kb/directives/apprendimento.md", "lib/reminders.ts", "AGENTS.md"],

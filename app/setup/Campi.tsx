@@ -2,7 +2,7 @@
 import { useState, useTransition } from "react";
 import { salva, prova, Esito, Prova } from "./actions";
 
-export type Campo = { key: string; label: string; help?: string; value: string; source: "web" | "env" | "default"; placeholder?: string; list?: string };
+export type Campo = { key: string; label: string; help?: string; value: string; source: "web" | "env" | "default"; placeholder?: string; list?: string; options?: { value: string; label: string }[] };
 
 const ORIGINE = { web: "salvato qui", env: "da .env", default: "predefinito" };
 
@@ -15,8 +15,10 @@ export function Campi({ campi, bloccato }: { campi: Campo[]; bloccato: boolean }
       {campi.map((c) => (
         <div className="campo" key={c.key}>
           <label htmlFor={c.key}>{c.label} <span className="origine">{ORIGINE[c.source]}</span></label>
-          <input id={c.key} name={c.key} type="text" defaultValue={c.source === "default" ? "" : c.value} placeholder={c.placeholder ?? c.value}
-            list={c.list} disabled={bloccato} aria-invalid={!!err(c.key)} aria-describedby={c.help ? `${c.key}-h` : undefined} />
+          {c.options ? <select id={c.key} name={c.key} defaultValue={c.value} disabled={bloccato} aria-invalid={!!err(c.key)} aria-describedby={c.help ? `${c.key}-h` : undefined}>
+            {c.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select> : <input id={c.key} name={c.key} type="text" defaultValue={c.source === "default" ? "" : c.value} placeholder={c.placeholder ?? c.value}
+            list={c.list} disabled={bloccato} aria-invalid={!!err(c.key)} aria-describedby={c.help ? `${c.key}-h` : undefined} />}
           {err(c.key) && <span className="conflitto">{err(c.key)}</span>}
           {c.help && <span id={`${c.key}-h`} className="aiuto">{c.help}</span>}
         </div>

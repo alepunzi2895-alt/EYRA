@@ -13,6 +13,7 @@ const ok = (c: unknown, m: string) => { console.log(`${c ? "✓" : "✗"} ${m}`)
 (async () => {
   await (await import("./auth-selftest")).testAuth();
   await (await import("./connections-selftest")).testConnections();
+  await (await import("./calendar-selftest")).testCalendar();
   const kb = await import("../lib/kb");
   const pt = await import("../lib/patch");
   const { extractXml, summarize } = await import("../lib/fattura");
