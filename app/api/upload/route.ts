@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { runAgent, Attachment } from "@/lib/agent";
 import { writeBinary } from "@/lib/drive";
 import { today } from "@/lib/kb";
+import { agentIssue } from "@/lib/availability";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 const TIPI = ["estratto-conto", "fattura", "contratto", "fiscale", "barca", "altro"];
 
 export async function POST(req: NextRequest) {
+  const issue = await agentIssue();
+  if (issue) return NextResponse.json({ reply: issue }, { status: 503 });
   const form = await req.formData();
   const tipo = TIPI.includes(String(form.get("tipo"))) ? String(form.get("tipo")) : "altro";
   const entita = String(form.get("entita") ?? "");

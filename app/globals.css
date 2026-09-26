@@ -38,6 +38,11 @@ main { padding: 36px 44px 80px; max-width: 1100px; width: 100%; min-width: 0; }
 h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px; line-height: 1.1; }
 h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 36px 0 12px; }
 .sub { color: var(--fondale); margin: 0 0 28px; }
+.connection-notice { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 18px 22px; margin: 0 0 24px; border: 1px solid var(--linea); border-left: 3px solid var(--boa); border-radius: var(--r-m); background: var(--pannello); }
+.connection-notice > div { flex: 1 1 300px; }
+.connection-notice strong { color: var(--alga); }
+.connection-notice p { margin: 5px 0 0; color: var(--fondale); }
+.upload-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
 
 /* cockpit */
 body:has(.cockpit) { background: #060f0c; }

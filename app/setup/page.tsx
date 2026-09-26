@@ -12,7 +12,7 @@ const DB_TESTO = {
   turso: "Collegato a Turso. Le impostazioni qui sotto si salvano nel database.",
   assente: "Nessun database: imposta TURSO_DATABASE_URL e TURSO_AUTH_TOKEN in .env, poi riavvia l'app.",
 };
-const SEZIONI = [["generale", "Generale"], ["database", "Database"], ["claude", "Claude"], ["google", "Google"], ["whatsapp", "WhatsApp"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
+const SEZIONI = [["generale", "Generale"], ["database", "Database"], ["claude", "Claude"], ["google", "Google"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
 
 function Segreti({ group, nonServe = [] }: { group: string; nonServe?: string[] }) {
   return (
@@ -45,7 +45,7 @@ export default async function Setup() {
     <Shell>
       <div className="settings-page">
       <h1>Impostazioni</h1>
-      <p className="sub">Le chiavi restano in .env: qui vedi solo se sono impostate. Da questa pagina modifichi le impostazioni disponibili.</p>
+      <p className="sub">Puoi completare i collegamenti in momenti diversi. Le chiavi si impostano nelle variabili d’ambiente su Vercel (in locale, in .env): qui vedi solo il loro stato.</p>
 
       <nav className="indice" aria-label="Sezioni">
         {SEZIONI.map(([id, l]) => <a key={id} href={`#${id}`}>{l}</a>)}
@@ -100,6 +100,26 @@ export default async function Setup() {
           <Verifica kind="whatsapp" />
           <Verifica kind="whatsapp-invio" label="Invia avviso di prova" conferma="Inviare un messaggio WhatsApp di prova ai numeri dei promemoria?" />
         </div>
+      </section>
+
+      <section className="passo" id="telegram">
+        <h2>Telegram</h2>
+        <p>Collega un bot e autorizza la tua chat privata. Non serve un numero dedicato: qui si usa l’ID chat Telegram.</p>
+        <ol>
+          <li>Apri <a href="https://t.me/BotFather" target="_blank" rel="noreferrer">@BotFather</a>, invia <code>/newbot</code> e scegli nome e username del bot.</li>
+          <li>Salva il token come <code>TELEGRAM_BOT_TOKEN</code> nelle variabili d’ambiente su Vercel. Aggiungi <code>TELEGRAM_WEBHOOK_SECRET</code> con una stringa casuale lunga di lettere, numeri, trattini o underscore. Poi fai Redeploy.</li>
+          <li>Premi «Collega Telegram», apri la chat con il tuo bot e invia <code>/start</code>.</li>
+          <li>Copia l’ID restituito nel campo qui sotto e salva. Solo le chat autorizzate possono parlare con l’assistente.</li>
+        </ol>
+        <Copia testo={`${origin}/api/telegram`} />
+        <Segreti group="telegram" />
+        <Campi campi={campi("telegram")} bloccato={bloccato} />
+        {bloccato && <p className="aiuto">Per salvare gli ID qui, collega il database. Puoi anche impostare TELEGRAM_ALLOWED_CHAT_IDS nelle variabili d’ambiente.</p>}
+        <div className="azioni">
+          <Verifica kind="telegram" label="Verifica bot" />
+          <Verifica kind="telegram-collega" label="Collega Telegram" />
+        </div>
+        <p className="aiuto">Chat di testo e approvazioni con «ok CODICE». Documenti e immagini si caricano dal sito. I promemoria automatici restano su WhatsApp.</p>
       </section>
 
       <section className="passo" id="automatismi">

@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Shell } from "@/app/components/Shell";
-import Setup from "@/app/components/Setup";
 import { loadAll, scadenze, validate, today, addDays, Scad } from "@/lib/kb";
 import { pendingPatches } from "@/lib/patch";
 import { brand } from "@/lib/config";
 import Eye3D from "@/app/components/Eye3D";
 import Wordmark from "@/app/components/Wordmark";
+import ConnectionNotice from "@/app/components/ConnectionNotice";
+import { archiveIssue } from "@/lib/availability";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +34,14 @@ function gruppi(rows: Scad[], oggi: string) {
 }
 
 export default async function Oggi() {
-  let docs, patches;
-  try { [docs, patches] = await Promise.all([loadAll(), pendingPatches()]); }
-  catch (e: any) { return <Shell><h1>Oggi</h1><Setup error={e.message} /></Shell>; }
+  let issue = await archiveIssue();
+  let docs: Awaited<ReturnType<typeof loadAll>> = [];
+  let patches: Awaited<ReturnType<typeof pendingPatches>> = [];
+  if (!issue) {
+    try { [docs, patches] = await Promise.all([loadAll(), pendingPatches()]); }
+    catch { issue = "Archivio non raggiungibile. Verifica il collegamento Google nelle Impostazioni."; }
+  }
+  const count = (n: number) => issue ? "—" : n;
 
   const cfg = await brand();
   const oggi = today();
@@ -53,6 +59,7 @@ export default async function Oggi() {
   return (
     <Shell inbox={patches.length}>
       <div className="cockpit">
+        {issue && <ConnectionNotice message={issue} />}
         <header className="cockpit-head">
           <div>
             <p className="eyebrow">cruscotto operativo</p>
@@ -69,7 +76,7 @@ export default async function Oggi() {
         <section className="jarvis-grid" aria-label="Sintesi assistente">
           <div className="radar-panel left">
             <p className="panel-label">attenzione</p>
-            <strong>{entro7}</strong>
+            <strong>{count(entro7)}</strong>
             <span>scadenze entro 7 giorni</span>
             <div className="signal-bars" aria-hidden="true"><i /><i /><i /><i /></div>
           </div>
@@ -77,19 +84,19 @@ export default async function Oggi() {
           <div className="orbital-core" aria-label="Avatar centrale animato">
             <Eye3D name={cfg.name} />
             <div className="core-readout">
-              <b>{rows.length}</b>
+              <b>{count(rows.length)}</b>
               <span>scadenze monitorate</span>
             </div>
           </div>
 
           <div className="radar-panel right">
             <p className="panel-label">archivio</p>
-            <strong>{docs.length}</strong>
+            <strong>{count(docs.length)}</strong>
             <span>file indicizzati</span>
             <dl>
-              <div><dt>Da approvare</dt><dd>{patches.length}</dd></div>
-              <div><dt>Da validare</dt><dd>{nonValidati}</dd></div>
-              <div><dt>Struttura</dt><dd>{errori.length ? `${errori.length} errori` : "ok"}</dd></div>
+              <div><dt>Da approvare</dt><dd>{count(patches.length)}</dd></div>
+              <div><dt>Da validare</dt><dd>{count(nonValidati)}</dd></div>
+              <div><dt>Struttura</dt><dd>{issue ? "da collegare" : errori.length ? `${errori.length} errori` : "ok"}</dd></div>
             </dl>
           </div>
         </section>
@@ -97,7 +104,7 @@ export default async function Oggi() {
         <section className="mission-strip" aria-label={`Scadenze nei prossimi ${GG} giorni`}>
           <div>
             <p className="panel-label">timeline</p>
-            <strong>{entro30}</strong>
+            <strong>{count(entro30)}</strong>
             <span>entro 30 giorni</span>
           </div>
           <div className="marea-track">
@@ -121,7 +128,7 @@ export default async function Oggi() {
               {calendar.map(({ d, items }) => (
                 <div key={d} className={items.length ? "day hot" : "day"}>
                   <span>{fmt(d)}</span>
-                  <b>{items.length}</b>
+                  <b>{count(items.length)}</b>
                   {items.slice(0, 2).map((i) => <small key={i.id + i.data}>{i.titolo}</small>)}
                 </div>
               ))}
@@ -137,7 +144,7 @@ export default async function Oggi() {
               {AREE.map(([nome, slug, descr]) => (
                 <Link key={slug} className="area-tile" href={`/cartella/50-moduli/${slug}`}>
                   <span>{nome}</span>
-                  <b>{areaCount(slug)}</b>
+                  <b>{count(areaCount(slug))}</b>
                   <small>{descr}</small>
                 </Link>
               ))}
@@ -147,7 +154,7 @@ export default async function Oggi() {
 
         <div className="cols">
           <div>
-            {rows.length === 0 && <p className="vuoto">Nessuna scadenza nei prossimi {GG} giorni. Aggiungine una dalla chat.</p>}
+            {rows.length === 0 && <p className="vuoto">{issue ? "Le scadenze saranno disponibili dopo il collegamento dell’archivio." : `Nessuna scadenza nei prossimi ${GG} giorni. Aggiungine una dalla chat.`}</p>}
             {gruppi(rows, oggi).map(([titolo, list]) => (
               <section key={titolo}>
                 <h2>{titolo}</h2>
@@ -165,9 +172,9 @@ export default async function Oggi() {
           </div>
           <aside className="fatti" aria-label="Stato archivio">
             <h2 style={{ margin: "0 0 -6px" }}>Stato sistemi</h2>
-            <div className={patches.length ? "alert" : ""}><b>{patches.length}</b><span><Link href="/inbox">modifiche da approvare</Link></span></div>
-            <div className={nonValidati ? "alert" : ""}><b>{nonValidati}</b><span>file non confermati da professionista</span></div>
-            <div className={errori.length ? "alert" : ""}><b>{errori.length}</b><span>errori di struttura{errori.length > 0 && <>: {errori.slice(0, 3).join("; ")}</>}</span></div>
+            <div className={patches.length ? "alert" : ""}><b>{count(patches.length)}</b><span><Link href="/inbox">modifiche da approvare</Link></span></div>
+            <div className={nonValidati ? "alert" : ""}><b>{count(nonValidati)}</b><span>file non confermati da professionista</span></div>
+            <div className={errori.length ? "alert" : ""}><b>{count(errori.length)}</b><span>errori di struttura{errori.length > 0 && <>: {errori.slice(0, 3).join("; ")}</>}</span></div>
           </aside>
         </div>
       </div>

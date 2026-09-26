@@ -8,7 +8,7 @@ export const APP_NAME = "EYRA" as const;
  * Precedenza: valore salvato nel DB (Turso) > variabile d'ambiente > default.
  * I segreti NON passano da qui: restano solo in .env (vedi SECRETS).
  */
-export type Group = "generale" | "claude" | "google" | "whatsapp" | "automatismi";
+export type Group = "generale" | "claude" | "google" | "whatsapp" | "telegram" | "automatismi";
 type Def = { label: string; group: Group; def: string; help?: string; norm?: (v: string) => string; check?: RegExp; err?: string };
 
 const csv = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean).join(",");
@@ -28,6 +28,8 @@ export const DEFS = {
     help: "Solo questi numeri possono scrivere all'assistente. Es. 393400000000,34600000000" },
   WA_DIGEST_NUMBERS: { label: "Numeri che ricevono i promemoria", group: "whatsapp", def: "", norm: phones, check: /^(\d{8,15}(,\d{8,15})*)?$/, err: "numeri con prefisso, solo cifre, separati da virgola",
     help: "Vuoto = tutti i numeri autorizzati." },
+  TELEGRAM_ALLOWED_CHAT_IDS: { label: "ID chat Telegram autorizzati", group: "telegram", def: "", norm: csv, check: /^(\d{1,16}(,\d{1,16})*)?$/, err: "ID numerici delle chat private, separati da virgola",
+    help: "Invia /start al tuo bot per conoscere l’ID, poi incollalo qui. Telegram usa l’ID chat, non il numero di telefono. Vuoto = nessun accesso all’assistente." },
   WA_TEMPLATE_DIGEST: { label: "Template promemoria", group: "whatsapp", def: "eyra_scadenze", norm: line, check: /^[a-z0-9_]{1,512}$/, err: "minuscole, cifre e _" },
   WA_TEMPLATE_AVVISO: { label: "Template avviso", group: "whatsapp", def: "eyra_avviso", norm: line, check: /^[a-z0-9_]{1,512}$/, err: "minuscole, cifre e _" },
   WA_TEMPLATE_LANG: { label: "Lingua template", group: "whatsapp", def: "it", norm: line, check: /^[a-z]{2}(_[A-Z]{2})?$/, err: "es. it o it_IT" },
@@ -53,6 +55,8 @@ export const SECRETS: { key: string; label: string; group: Group | "accesso" | "
   { key: "WA_ACCESS_TOKEN", label: "Token di accesso", group: "whatsapp" },
   { key: "WA_APP_SECRET", label: "Chiave segreta app", group: "whatsapp" },
   { key: "WA_VERIFY_TOKEN", label: "Token verifica webhook", group: "whatsapp" },
+  { key: "TELEGRAM_BOT_TOKEN", label: "Token bot Telegram", group: "telegram" },
+  { key: "TELEGRAM_WEBHOOK_SECRET", label: "Segreto webhook Telegram", group: "telegram" },
   { key: "CRON_SECRET", label: "Segreto cron", group: "automatismi" },
 ];
 

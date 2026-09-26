@@ -2,6 +2,8 @@ import { Shell } from "@/app/components/Shell";
 import Setup from "@/app/components/Setup";
 import { pendingPatches, preview, Patch, Preview } from "@/lib/patch";
 import Azioni from "./Azioni";
+import { archiveIssue } from "@/lib/availability";
+import ConnectionNotice from "@/app/components/ConnectionNotice";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +18,8 @@ function Diff({ text }: { text: string }) {
 }
 
 export default async function Inbox() {
+  const issue = await archiveIssue();
+  if (issue) return <Shell><h1>Da approvare</h1><ConnectionNotice message={issue} /><p className="vuoto">Qui potrai rivedere e approvare le modifiche proposte all’archivio.</p></Shell>;
   let items: { p: Patch; pv: Preview }[];
   try {
     const patches = await pendingPatches();
@@ -25,7 +29,7 @@ export default async function Inbox() {
   return (
     <Shell inbox={items.length}>
       <h1>Da approvare</h1>
-      <p className="sub">Modifiche proposte dall'agente. Niente viene scritto finché non approvi, qui o su WhatsApp con «ok CODICE».</p>
+      <p className="sub">Modifiche proposte dall'agente. Niente viene scritto finché non approvi, qui o su WhatsApp e Telegram con «ok CODICE».</p>
       {items.length === 0 && <p className="vuoto">Nessuna modifica in attesa. Inoltra in chat un messaggio del commercialista per crearne una.</p>}
       {items.map(({ p, pv }) => (
         <article className="patch" key={p.code}>

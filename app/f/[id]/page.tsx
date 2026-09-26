@@ -4,6 +4,8 @@ import { Shell } from "@/app/components/Shell";
 import Md from "@/app/components/Md";
 import { loadAll, iso } from "@/lib/kb";
 import { index } from "@/lib/drive";
+import { archiveIssue } from "@/lib/availability";
+import ConnectionNotice from "@/app/components/ConnectionNotice";
 
 export const dynamic = "force-dynamic";
 const HIDE = new Set(["id", "titolo", "fonti_campi"]);
@@ -18,6 +20,8 @@ function show(v: unknown): string {
 }
 
 export default async function File({ params }: { params: Promise<{ id: string }> }) {
+  const issue = await archiveIssue();
+  if (issue) return <Shell><h1>Documento</h1><ConnectionNotice message={issue} /></Shell>;
   const id = decodeURIComponent((await params).id);
   const docs = await loadAll();
   const d = docs.find((x) => x.id === id);

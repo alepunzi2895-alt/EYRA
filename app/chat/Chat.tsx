@@ -6,15 +6,16 @@ import remarkGfm from "remark-gfm";
 type M = { role: "user" | "assistant"; text: string };
 const link = (t: string) => t.replace(/\[\[([^\]|#]+)\]\]/g, (_, id) => `[${id}](/f/${encodeURIComponent(id)})`);
 
-export default function Chat({ initial }: { initial: M[] }) {
+export default function Chat({ initial, disabled = false }: { initial: M[]; disabled?: boolean }) {
   const [msgs, setMsgs] = useState<M[]>(initial);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const files = useRef<HTMLInputElement>(null);
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => end.current?.scrollIntoView({ block: "end" }), [msgs, busy]);
+  useEffect(() => { end.current?.scrollIntoView({ block: "end" }); }, [msgs, busy]);
 
   async function send() {
+    if (disabled || busy) return;
     const f = files.current?.files;
     if (!text.trim() && !f?.length) return;
     const fd = new FormData();
@@ -46,10 +47,10 @@ export default function Chat({ initial }: { initial: M[] }) {
         <div ref={end} />
       </div>
       <div className="composer">
-        <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Scrivi o incolla…" aria-label="Messaggio"
+        <textarea disabled={disabled} value={text} onChange={(e) => setText(e.target.value)} placeholder={disabled ? "Completa i collegamenti per iniziare" : "Scrivi o incolla…"} aria-label="Messaggio"
           onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send(); }} />
-        <button onClick={send} disabled={busy}>Invia</button>
-        <label className="file">Allegati (PDF, immagini, Excel): <input ref={files} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.xlsx,.xls,.csv,.txt,.md" /></label>
+        <button onClick={send} disabled={busy || disabled}>Invia</button>
+        <label className="file">Allegati (PDF, immagini, Excel): <input disabled={disabled} ref={files} type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.xlsx,.xls,.csv,.txt,.md" /></label>
       </div>
     </div>
   );

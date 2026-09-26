@@ -6,11 +6,11 @@ import { preview, apply, savePatch, loadPatch, newCode, Patch, Op, Fonte } from 
 import { loadHistory, appendHistory } from "./history";
 import { isFattura, extractXml, summarize } from "./fattura";
 import { settings } from "./config";
+import { agentIssue } from "./availability";
 
-const anthropic = new Anthropic();
 
 export type Attachment = { name: string; mime: string; data: Buffer };
-export type Channel = "whatsapp" | "web" | "email" | "upload";
+export type Channel = "whatsapp" | "telegram" | "web" | "email" | "upload";
 type Ctx = { userText: string; channel: Channel; who: string };
 
 // ---------- tools ----------
@@ -159,6 +159,7 @@ function attachmentBlocks(atts: Attachment[]): Anthropic.ContentBlockParam[] {
 }
 
 const CHANNEL_NOTE: Record<Channel, string> = {
+  telegram: " Rispondi in testo semplice, senza tabelle. Le patch richiedono sempre conferma con il codice.",
   whatsapp: " Rispondi breve, niente tabelle, max ~1200 caratteri salvo richiesta.",
   web: "",
   email: " Elaborazione automatica di email importata: nessuno legge in tempo reale. Proponi patch per i fatti rilevanti (patch_proponi), non applicarle. Chiudi con riepilogo di 2 righe e codici patch.",
@@ -167,6 +168,9 @@ const CHANNEL_NOTE: Record<Channel, string> = {
 
 // ---------- loop ----------
 export async function runAgent(opts: { key: string; who: string; channel: Channel; text: string; attachments?: Attachment[]; noHistory?: boolean }): Promise<string> {
+  const issue = await agentIssue();
+  if (issue) return issue;
+  const anthropic = new Anthropic();
   const history = opts.noHistory ? [] : await loadHistory(opts.key);
   const ctx: Ctx = { userText: opts.text, channel: opts.channel, who: opts.who };
   const cfg = await settings();

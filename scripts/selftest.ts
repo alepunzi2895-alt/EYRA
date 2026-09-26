@@ -11,6 +11,8 @@ let fail = 0;
 const ok = (c: unknown, m: string) => { console.log(`${c ? "✓" : "✗"} ${m}`); if (!c) fail++; };
 
 (async () => {
+  await (await import("./auth-selftest")).testAuth();
+  await (await import("./connections-selftest")).testConnections();
   const kb = await import("../lib/kb");
   const pt = await import("../lib/patch");
   const { extractXml, summarize } = await import("../lib/fattura");
@@ -59,9 +61,14 @@ const ok = (c: unknown, m: string) => { console.log(`${c ? "✓" : "✗"} ${m}`)
     await cfg.save(Object.fromEntries([["APP_NAME", "Ettore"]]), "test");
     ok((await cfg.settings()).APP_NAME === "EYRA", "richiesta di rinomina ignorata dal server");
     ok(!cfg.KEYS.some((k) => /KEY|TOKEN|SECRET|PASSWORD/.test(k)), "nessun segreto tra le impostazioni da web");
+    ok((await cfg.save({ TELEGRAM_ALLOWED_CHAT_IDS: "123456789, 987654321" }, "test")).ok, "ID chat Telegram salvati");
+    const tg = await import("../lib/telegram");
+    ok(await tg.telegramAllowed(123456789) && !(await tg.telegramAllowed(111111111)), "Telegram: whitelist applicata");
+    ok(!(await cfg.save({ TELEGRAM_ALLOWED_CHAT_IDS: "+393400000000" }, "test")).ok, "Telegram: numero con prefisso rifiutato");
   } finally {
     await cfg.save({
       WA_ALLOWED_NUMBERS: before.WA_ALLOWED_NUMBERS.source === "web" ? before.WA_ALLOWED_NUMBERS.value : "",
+      TELEGRAM_ALLOWED_CHAT_IDS: before.TELEGRAM_ALLOWED_CHAT_IDS.source === "web" ? before.TELEGRAM_ALLOWED_CHAT_IDS.value : "",
     }, "test-restore");
     (await import("../lib/db")).closeDb();
   }

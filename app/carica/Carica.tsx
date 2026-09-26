@@ -6,12 +6,13 @@ import remarkGfm from "remark-gfm";
 
 const TIPI = [["estratto-conto", "Estratto conto"], ["fattura", "Fattura"], ["contratto", "Contratto"], ["fiscale", "Documento fiscale"], ["barca", "Documento barca"], ["altro", "Altro"]];
 
-export default function Carica({ entita }: { entita: { id: string; titolo: string }[] }) {
+export default function Carica({ entita, disabled = false }: { entita: { id: string; titolo: string }[]; disabled?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [reply, setReply] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (disabled || busy) return;
     const form = e.currentTarget;
     setBusy(true); setReply(null);
     try {
@@ -25,6 +26,7 @@ export default function Carica({ entita }: { entita: { id: string; titolo: strin
   return (
     <>
       <form className="upload-form" onSubmit={submit}>
+        <fieldset disabled={disabled || busy} className="upload-fields">
         <div className="campo"><label htmlFor="tipo">Tipo</label>
           <select id="tipo" name="tipo" defaultValue="estratto-conto">{TIPI.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></div>
         <div className="campo"><label htmlFor="entita">Soggetto</label>
@@ -34,6 +36,7 @@ export default function Carica({ entita }: { entita: { id: string; titolo: strin
         <div className="campo"><label htmlFor="nota">Nota (facoltativa)</label>
           <textarea id="nota" name="nota" rows={2} placeholder="es. conto BBVA autónomo, settembre" /></div>
         <button disabled={busy}>{busy ? "Analisi in corso…" : "Carica e analizza"}</button>
+        </fieldset>
       </form>
       {reply && (
         <section className="passo" style={{ marginTop: 24 }} aria-live="polite">

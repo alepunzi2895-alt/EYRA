@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { runAgent, Attachment } from "@/lib/agent";
 import { writeBinary } from "@/lib/drive";
 import { today } from "@/lib/kb";
+import { agentIssue } from "@/lib/availability";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
+  const issue = await agentIssue();
+  if (issue) return NextResponse.json({ reply: issue }, { status: 503 });
   const form = await req.formData();
   const text = String(form.get("text") ?? "");
   const attachments: Attachment[] = [];

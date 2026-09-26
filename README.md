@@ -1,7 +1,7 @@
 # EYRA
 
 Assistente gestionale personale: fisco Italia/Spagna, immobili, barche, contabilità, bandi, coaching.
-Web + WhatsApp. Archivio markdown sul Google Drive della titolare.
+Web + WhatsApp + Telegram (chat private di testo). Archivio markdown sul Google Drive della titolare. L’interfaccia è navigabile anche prima del collegamento Google, con gli stati da configurare visibili.
 
 - **Titolare**: segui `SETUP-TITOLARE.md`.
 - **Sviluppo**: leggi `CLAUDE.md`, poi `npm install && npm run dev:demo`.

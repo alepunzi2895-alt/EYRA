@@ -3,12 +3,16 @@ import { Shell } from "@/app/components/Shell";
 import Setup from "@/app/components/Setup";
 import { index, isFolder } from "@/lib/drive";
 import { loadAll } from "@/lib/kb";
+import { archiveIssue } from "@/lib/availability";
+import ConnectionNotice from "@/app/components/ConnectionNotice";
 
 export const dynamic = "force-dynamic";
 
 export default async function Cartella({ params }: { params: Promise<{ path?: string[] }> }) {
   const { path = [] } = await params;
   const base = path.map(decodeURIComponent).join("/");
+  const issue = await archiveIssue();
+  if (issue) return <Shell><h1>Archivio</h1><ConnectionNotice message={issue} /><p className="vuoto">Qui troverai cartelle e documenti quando avrai collegato l’archivio.</p></Shell>;
   let map, docs;
   try { [map, docs] = await Promise.all([index(), loadAll()]); }
   catch (e: any) { return <Shell><h1>Archivio</h1><Setup error={e.message} /></Shell>; }

@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { save, settings, KEYS, Key } from "@/lib/config";
 import { db, dbKind } from "@/lib/db";
+import { headers } from "next/headers";
 
 export type Esito = { ok?: string; error?: string; errors?: Partial<Record<Key, string>> };
 
@@ -20,7 +21,7 @@ export async function salva(fd: FormData): Promise<Esito> {
   return { ok: "Salvato. Le altre istanze si aggiornano entro 30 secondi." };
 }
 
-export type Prova = "db" | "claude" | "drive" | "gmail" | "whatsapp" | "whatsapp-invio";
+export type Prova = "db" | "claude" | "drive" | "gmail" | "whatsapp" | "whatsapp-invio" | "telegram" | "telegram-collega";
 
 const need = (...keys: string[]) => {
   const miss = keys.filter((k) => !process.env[k]);
@@ -30,6 +31,17 @@ const need = (...keys: string[]) => {
 export async function prova(kind: Prova): Promise<Esito> {
   try {
     switch (kind) {
+      case "telegram": {
+        need("TELEGRAM_BOT_TOKEN");
+        return { ok: await (await import("@/lib/telegram")).telegramStatus() };
+      }
+      case "telegram-collega": {
+        need("TELEGRAM_BOT_TOKEN", "TELEGRAM_WEBHOOK_SECRET");
+        const h = await headers();
+        const origin = `${h.get("x-forwarded-proto") ?? "https"}://${h.get("host")}`;
+        await (await import("@/lib/telegram")).connectTelegram(origin);
+        return { ok: "Webhook collegato. Invia /start al bot, copia il tuo ID chat qui sotto e salva." };
+      }
       case "db": {
         const c = await db();
         if (!c) return { error: "Nessun database: imposta TURSO_DATABASE_URL e TURSO_AUTH_TOKEN in .env, poi riavvia l'app." };

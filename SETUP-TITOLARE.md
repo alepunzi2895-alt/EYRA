@@ -58,7 +58,23 @@ Serve un **numero nuovo** dedicato ad EYRA (SIM o numero virtuale): un numero re
 8. Impostazioni → WhatsApp: numeri autorizzati (con prefisso, es. `393400000000`) e chi riceve i promemoria → Salva → *Verifica collegamento* e *Invia avviso di prova*.
 9. Scrivi «ciao» al numero dell'assistente.
 
-## 8. Primo avvio
+## 8. Telegram (facoltativo)
+
+Telegram usa un bot e ID di chat private, non numeri di telefono.
+1. Su Telegram apri `@BotFather`, invia `/newbot` e scegli nome e username.
+2. Salva il token in `TELEGRAM_BOT_TOKEN`, solo in `.env` e nelle variabili d’ambiente Vercel.
+3. Crea `TELEGRAM_WEBHOOK_SECRET`: stringa casuale lunga, lettere, numeri, trattini e underscore. Salvala negli stessi ambienti e fai Redeploy.
+4. Nel sito → Impostazioni → Telegram → **Verifica bot**, poi **Collega Telegram**. Questo registra il webhook HTTPS `/api/telegram` sul dominio da cui apri il setup; usa il dominio di produzione stabile.
+5. Apri la chat con il bot e invia `/start`: ricevi il tuo ID chat. Incollalo negli **ID chat Telegram autorizzati** e salva. Per più chat usa la virgola. Senza database puoi usare `TELEGRAM_ALLOWED_CHAT_IDS` nelle variabili d’ambiente.
+6. Scrivi al bot. Sono supportati messaggi di testo e approvazioni `ok CODICE`; documenti e immagini si caricano dal sito. L’assistente richiede Anthropic e l’archivio Google configurati. I promemoria automatici usano ancora WhatsApp.
+
+Il webhook verifica il segreto Telegram prima di leggere l’aggiornamento, accetta solo chat private autorizzate e ignora gruppi e canali. `/start` e `/id` restituiscono soltanto l’ID della chat del mittente, senza accedere all’archivio. Deduplica dei retry: best effort in memoria per istanza, come WhatsApp.
+
+## Navigare prima di collegare Google
+
+Con l’accesso web configurato puoi esplorare dashboard, calendario, aree, DNA, occhio, archivio, chat, caricamenti e impostazioni. Se Google o la cartella archivio mancano, viene mostrato un invito a completare il collegamento. I contatori non disponibili sono indicati con `—`; non vengono caricati dati demo in produzione. Chat e caricamenti restano visibili ma si attivano dopo aver configurato Google, cartella archivio e Anthropic. Le relative API rifiutano l’elaborazione con un messaggio leggibile finché mancano i prerequisiti.
+
+## 9. Primo avvio
 Su WhatsApp o in Chat: «Iniziamo l'onboarding». EYRA ti fa domande a blocchi e crea l'archivio. Ogni modifica chiede conferma: «ok CODICE».
 
 ## Accesso sviluppatore ai file (facoltativo)
