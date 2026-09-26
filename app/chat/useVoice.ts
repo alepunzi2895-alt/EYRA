@@ -11,6 +11,7 @@ const VOICE_STORAGE = "eyra.voice.uri";
 
 export function useVoice() {
   const [available, setAvailable] = useState(false), [microphone, setMicrophone] = useState(false);
+  const [nativePlayback, setNativePlayback] = useState(false);
   const [enabled, setEnabled] = useState(false), [listening, setListening] = useState(false);
   const [status, setStatus] = useState("");
   const [dictationStatus, setDictationStatus] = useState(""), [dictationFailed, setDictationFailed] = useState(false);
@@ -29,6 +30,7 @@ export function useVoice() {
     mounted.current = true;
     setAppleMobile(/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
     setAvailable("speechSynthesis" in window);
+    setNativePlayback("speechSynthesis" in window);
     const w = window as VoiceWindow;
     setMicrophone(window.isSecureContext && !!(w.SpeechRecognition || w.webkitSpeechRecognition));
     cloudSpeaker.current = new CloudSpeaker(message => { if (mounted.current) setStatus(message); });
@@ -69,6 +71,7 @@ export function useVoice() {
     utterance.onend = () => { if (mounted.current && !window.speechSynthesis.pending) setStatus(""); };
     utterance.onerror = e => { if (mounted.current && !["interrupted", "canceled"].includes(e.error)) setStatus("Riproduzione non disponibile: usa Ascolta o continua con il testo."); };
     window.speechSynthesis.speak(utterance);
+    if (window.speechSynthesis.paused) window.speechSynthesis.resume();
   }
   function push(text: string, flush = false) {
     if (!active.current) return;
@@ -96,18 +99,28 @@ export function useVoice() {
     recognition.current = new BrowserDictation(() => new Constructor(), update, (on, message, failed) => { if (mounted.current) { setListening(on); setDictationStatus(message); setDictationFailed(!!failed); } });
     recognition.current.start(current);
   }
+  function selectVoice(uri: string) {
+    stop(); recording.clearStatus(); setDictationStatus(""); preferredVoice.current = uri; setSelectedVoice(uri); setStatus("");
+    try { if (uri) localStorage.setItem(VOICE_STORAGE, uri); else localStorage.removeItem(VOICE_STORAGE); }
+    catch { setStatus("Voce scelta per questa sessione. Il browser non consente di salvare la preferenza."); }
+  }
+  function preview() {
+    if (recording.recording || recording.processing) return;
+    // A stalled native dictation must not leave the preview permanently disabled.
+    recognition.current?.dispose(); setListening(false); setDictationFailed(false); setDictationStatus("");
+    stop(); recording.clearStatus(); unlock();
+    speak("Ciao! Questa è la mia voce. Possiamo organizzare la giornata e leggere insieme i tuoi documenti.");
+  }
   return {
-    available, microphone: microphone || (cloud.enabled && recording.supported), nativeMicrophone: microphone, recordingSupported: recording.supported,
+    available, nativePlayback, microphone: microphone || (cloud.enabled && recording.supported), nativeMicrophone: microphone, recordingSupported: recording.supported,
+    previewBlocked: recording.processing ? "Attendi la trascrizione prima di ascoltare l’anteprima." : recording.recording ? "Premi Termina per completare la registrazione prima di ascoltare l’anteprima." : "",
+    nativeListening: listening,
     enabled, listening: listening || recording.recording, processing: recording.processing, status: recording.status || dictationStatus || status, dictate, push, voices, selectedVoice, cloud, aiVoices: AI_VOICES, inputMode, appleMobile, dictationFailed,
     useKeyboard() { inputChosen.current = true; recognition.current?.dispose(); recording.cancel(); stop(); setListening(false); setDictationFailed(false); setDictationStatus("Tocca il microfono della tastiera iPhone per dettare. Se manca: Impostazioni iPhone → Generali → Tastiera → Abilita dettatura."); },
     record(current: string, update: (text: string) => void) { if (!cloudReady.current || !recording.supported || recording.processing) return; inputChosen.current = true; recognition.current?.dispose(); setListening(false); stop(); setInputMode("recording"); setDictationFailed(false); setDictationStatus(""); void recording.toggle(current, update); },
     setInputMode(mode: string) { if (listening || recording.recording || recording.processing) return; inputChosen.current = true; setInputMode(mode); recording.clearStatus(); setDictationStatus(""); setDictationFailed(false); setStatus(""); },
-    selectVoice(uri: string) {
-      stop(); recording.clearStatus(); preferredVoice.current = uri; setSelectedVoice(uri); setStatus("");
-      try { if (uri) localStorage.setItem(VOICE_STORAGE, uri); else localStorage.removeItem(VOICE_STORAGE); }
-      catch { setStatus("Voce scelta per questa sessione. Il browser non consente di salvare la preferenza."); }
-    },
-    preview() { stop(); recording.clearStatus(); unlock(); speak("Ciao! Questa è la mia voce. Possiamo organizzare la giornata e leggere insieme i tuoi documenti."); },
+    selectVoice, preview,
+    previewDevice() { if (recording.recording || recording.processing) return; selectVoice(""); preview(); },
     toggle() { stop(); recording.clearStatus(); unlock(); setEnabled(!enabled); setStatus(""); if (!enabled) speak("Voce attiva."); },
     begin() { stop(); recording.clearStatus(); setDictationStatus(""); unlock(); active.current = enabled; },
     reset() { buffer.current = ""; },

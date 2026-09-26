@@ -106,8 +106,12 @@ export default function Chat({ initial, disabled = false, conversationId = "web"
               <optgroup label="Voci AI · OpenAI" disabled={!voice.cloud.enabled}>{voice.aiVoices.map(v => <option key={v} value={`ai:${v}`}>{v.charAt(0).toUpperCase() + v.slice(1)} · AI{voice.cloud.enabled ? "" : " · da attivare"}</option>)}</optgroup>
               <optgroup label="Voci del dispositivo">{voice.voices.map(v => <option key={v.voiceURI} value={v.voiceURI}>{v.name} · {v.lang} · {v.localService ? "sul dispositivo" : "online"}</option>)}</optgroup>
             </select></label>
-            <button type="button" className="sec" disabled={busy || voice.listening || voice.processing || (voice.selectedVoice.startsWith("ai:") && !voice.cloud.enabled)} onClick={voice.preview}>Ascolta anteprima</button>
+            {voice.selectedVoice.startsWith("ai:") && !voice.cloud.enabled ? <>
+              <a className="btn sec" href="/setup#voce">Attiva questa voce AI</a>
+              {voice.nativePlayback && <button type="button" className="sec" disabled={!!voice.previewBlocked} onClick={voice.previewDevice}>Prova la voce del dispositivo</button>}
+            </> : <button type="button" className="sec" disabled={!!voice.previewBlocked} onClick={voice.preview}>{voice.nativeListening ? "Termina dettatura e ascolta" : "Ascolta anteprima"}</button>}
           </div>
+          <p role="status">{voice.previewBlocked || voice.status}</p>
           <p>{voice.cloud.reason} {!voice.cloud.enabled && <a href="/setup#voce">Configura Audio AI</a>}</p>
           {voice.voices.filter(v => v.lang.startsWith("it")).length <= 1 && <p>Questo browser offre al massimo una voce italiana: altre voci del telefono potrebbero non essere esposte a Safari. I timbri AI sono indipendenti da questa lista.</p>}
           {voice.cloud.enabled && voice.recordingSupported && <div className="voice-choice"><label>Metodo di dettatura<select disabled={busy || voice.listening || voice.processing} value={voice.inputMode} onChange={e => voice.setInputMode(e.target.value)}><option value="recording">Registra e trascrivi · OpenAI</option><option value="browser" disabled={!voice.nativeMicrophone}>Dettatura del browser · testo in diretta</option></select></label></div>}
