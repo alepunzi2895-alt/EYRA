@@ -10,11 +10,15 @@ type Recognition = {
   start(): void; stop(): void; abort(): void;
 };
 type VoiceWindow = Window & { SpeechRecognition?: new () => Recognition; webkitSpeechRecognition?: new () => Recognition };
+const VOICE_STORAGE = "eyra.voice.uri";
 
 export function useVoice() {
   const [available, setAvailable] = useState(false), [microphone, setMicrophone] = useState(false);
   const [enabled, setEnabled] = useState(false), [listening, setListening] = useState(false);
   const [status, setStatus] = useState("");
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoice, setSelectedVoice] = useState("");
+  const preferredVoice = useRef("");
   const recognition = useRef<Recognition | null>(null), buffer = useRef(""), active = useRef(false);
   const mounted = useRef(true);
   useEffect(() => {
@@ -22,7 +26,11 @@ export function useVoice() {
     setAvailable("speechSynthesis" in window);
     const w = window as VoiceWindow;
     setMicrophone(!!(w.SpeechRecognition || w.webkitSpeechRecognition));
-    return () => { mounted.current = false; active.current = false; recognition.current?.abort(); window.speechSynthesis?.cancel(); };
+    try { preferredVoice.current = localStorage.getItem(VOICE_STORAGE) || ""; setSelectedVoice(preferredVoice.current); } catch { /* Storage may be unavailable in private browsing. */ }
+    const synth = window.speechSynthesis;
+    const refreshVoices = () => setVoices(synth.getVoices().slice().sort((a, b) => Number(b.lang.startsWith("it")) - Number(a.lang.startsWith("it")) || a.name.localeCompare(b.name, "it")));
+    if (synth) { refreshVoices(); synth.addEventListener("voiceschanged", refreshVoices); }
+    return () => { mounted.current = false; active.current = false; recognition.current?.abort(); synth?.removeEventListener("voiceschanged", refreshVoices); synth?.cancel(); };
   }, []);
   function stop() { active.current = false; buffer.current = ""; window.speechSynthesis?.cancel(); }
   function speak(text: string) {
@@ -30,8 +38,10 @@ export function useVoice() {
     if (!clean || !("speechSynthesis" in window)) return;
     const utterance = new SpeechSynthesisUtterance(clean);
     utterance.lang = "it-IT";
-    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith("it"));
-    utterance.voice = voices.find(v => v.localService) || voices[0] || null;
+    const allVoices = window.speechSynthesis.getVoices();
+    const italian = allVoices.filter(v => v.lang.startsWith("it"));
+    utterance.voice = allVoices.find(v => v.voiceURI === preferredVoice.current) || italian.find(v => v.localService) || italian[0] || null;
+    if (utterance.voice) utterance.lang = utterance.voice.lang;
     utterance.onstart = () => { if (mounted.current) setStatus("Voce in riproduzione"); };
     utterance.onend = () => { if (mounted.current && !window.speechSynthesis.pending) setStatus(""); };
     utterance.onerror = e => { if (mounted.current && !["interrupted", "canceled"].includes(e.error)) setStatus("Riproduzione non disponibile: usa Ascolta o continua con il testo."); };
@@ -61,7 +71,13 @@ export function useVoice() {
     catch { setStatus("Microfono non disponibile. Riprova."); }
   }
   return {
-    available, microphone, enabled, listening, status, dictate, push,
+    available, microphone, enabled, listening, status, dictate, push, voices, selectedVoice,
+    selectVoice(uri: string) {
+      stop(); preferredVoice.current = uri; setSelectedVoice(uri); setStatus("");
+      try { if (uri) localStorage.setItem(VOICE_STORAGE, uri); else localStorage.removeItem(VOICE_STORAGE); }
+      catch { setStatus("Voce scelta per questa sessione. Il browser non consente di salvare la preferenza."); }
+    },
+    preview() { stop(); speak("Ciao! Questa è la mia voce. Possiamo organizzare la giornata e leggere insieme i tuoi documenti."); },
     toggle() { stop(); setEnabled(!enabled); setStatus(""); if (!enabled) speak("Voce attiva."); },
     begin() { stop(); active.current = enabled; },
     reset() { buffer.current = ""; },

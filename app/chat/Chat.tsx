@@ -87,6 +87,19 @@ export default function Chat({ initial, disabled = false, conversationId = "web"
           {voice.available && <><button className="sec" aria-pressed={voice.enabled} onClick={voice.toggle}>{voice.enabled ? "Voce attiva" : "Attiva risposte vocali"}</button><button className="sec" onClick={voice.stop}>Ferma voce</button></>}
           <span role="status">{voice.listening ? "Ti ascolto…" : voice.status}</span>
         </div>
+        {voice.available && <details className="voice-settings">
+          <summary>Scegli voce</summary>
+          <div className="voice-choice">
+            <label>Voce per le risposte<select value={voice.selectedVoice} disabled={busy || voice.listening} onChange={e => voice.selectVoice(e.target.value)}>
+              <option value="">Automatica · italiano</option>
+              {voice.selectedVoice && !voice.voices.some(v => v.voiceURI === voice.selectedVoice) && <option value={voice.selectedVoice} disabled>Voce salvata non disponibile · uso automatica</option>}
+              {voice.voices.map(v => <option key={v.voiceURI} value={v.voiceURI}>{v.name} · {v.lang} · {v.localService ? "sul dispositivo" : "online"}</option>)}
+            </select></label>
+            <button type="button" className="sec" disabled={busy || voice.listening} onClick={voice.preview}>Ascolta anteprima</button>
+          </div>
+          <p>La scelta viene ricordata in questo browser e vale anche per «Ascolta». Le voci disponibili dipendono dal dispositivo; quelle online possono usare un servizio remoto.</p>
+          {!voice.voices.length && <p>Il browser non ha ancora fornito l’elenco delle voci. Puoi provare la voce automatica.</p>}
+        </details>}
         <textarea rows={inline ? 2 : undefined} disabled={disabled || voice.listening} value={text} onChange={(e) => setText(e.target.value)} placeholder={disabled ? "Collega Claude e Turso nelle Impostazioni" : inline ? "Di cosa ci occupiamo? Scrivi o parla…" : "Scrivi o detta…"} aria-label="Messaggio"
           onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send(); }} />
         <button onClick={send} disabled={busy || disabled || voice.listening || preparing}>Invia</button>

@@ -8,6 +8,8 @@ La chat web richiede `ANTHROPIC_API_KEY` e Turso, anche senza Google. Il prompt 
 
 «Detta messaggio» richiede il permesso microfono: rivedi il testo, poi invia. Il riconoscimento non è disponibile in tutti i browser e può utilizzare servizi remoti del produttore del browser. Se assente, resta utilizzabile la tastiera, anche con il suo microfono. La sintesi preferisce una voce italiana locale, quando disponibile. Le approvazioni di patch richiedono un nuovo messaggio scritto, non una trascrizione audio.
 
+«Scegli voce» elenca le voci del dispositivo, mostrando prima quelle italiane e indicando quali sono locali oppure online. «Ascolta anteprima» permette di confrontarle senza inviare messaggi a Claude. La scelta viene salvata solo nel browser e vale per risposte progressive e riascolto; «Automatica» ripristina la scelta predefinita. Se la voce salvata non è più disponibile si usa quella automatica. L’elenco si aggiorna quando il browser carica nuove voci.
+
 API di riferimento: [Messages Anthropic](https://platform.claude.com/docs/en/api/messages/create), [streaming](https://platform.claude.com/docs/en/build-with-claude/streaming), [Web Speech](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API).
 
 ## Memoria e attività
