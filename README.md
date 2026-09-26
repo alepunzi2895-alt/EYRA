@@ -1,7 +1,7 @@
 # EYRA
 
 Assistente gestionale personale: fisco Italia/Spagna, immobili, barche, contabilità, bandi, coaching.
-Web + WhatsApp + Telegram (chat private di testo). Archivio markdown sul Google Drive della titolare. L’interfaccia è navigabile anche prima del collegamento Google, con gli stati da configurare visibili.
+Web + WhatsApp + Telegram (testo, foto, documenti e vocali con trascrizione opzionale). Archivio markdown sul Google Drive della titolare. L’interfaccia e la chat con Claude sono utilizzabili anche prima del collegamento Google; la chat richiede Anthropic e Turso.
 
 - **Titolare**: segui `SETUP-TITOLARE.md`.
 - **Sviluppo**: leggi `CLAUDE.md`, poi `npm install && npm run dev:demo`.
@@ -17,9 +17,16 @@ Il nome **EYRA** è fisso. Il significato di **EYE + RA** e dell’occhio cosmic
 - **Carica**: estratti conto, fatture (PDF, XML, p7m), contratti → analisi e proposte.
 - **Da approvare**: diff, conflitti, Applica/Rifiuta.
 - **Chat / WhatsApp**: stesso agente, legge PDF/immagini/Excel/XML, cerca normativa, capisce spagnolo e inglese, risponde in italiano.
-- **Automatico ogni mattina**: promemoria (7, 2, 0 giorni), import email con etichetta configurata (PEC inoltrata), backup la domenica.
+- **Chat con voce**: risposte in streaming, dettatura e lettura per frasi tramite Web Speech del browser. Cronologia completa su Turso, più conversazioni, ricerca e archiviazione. Nessuna chiave audio aggiuntiva per il web.
+- **Foto di documenti**: prompt sotto l’occhio, fotocamera del telefono, allegati multipli con anteprima e rimozione, ottimizzazione delle foto grandi. Claude riceve le immagini per estrarre dati e proporre modifiche da approvare.
+- **Memoria**: `/memoria` mostra preferenze e correzioni approvate. L’agente propone nuove memorie durante il dialogo; ogni inserimento o rimozione richiede una patch approvata. Non è riaddestramento del modello.
+- **Attività e rinnovi**: `/attivita`, responsabile, prossimo passo, follow-up, stato, manutenzioni ricorrenti e preavvisi personalizzati.
+- **Centro automatismi**: `/automatismi`, briefing, riepilogo settimanale, interruttori, canali, fasce silenziose, registro esiti e coda persistente. Cron alle 06 UTC (07/08 a Roma secondo la stagione).
+- **Backup completo**: markdown, allegati e tabelle applicative non segrete, verifica checksum e ripristino in memoria, download autenticato, eventuale copia su endpoint HTTPS separato.
 - **Impostazioni**: sottotitolo, modello Claude, Drive/Gmail, numeri WhatsApp, promemoria — salvate su Turso, con verifica dei collegamenti. Le chiavi restano in `.env`.
 - **Onboarding a intervista**: la titolare costruisce l'archivio parlando con EYRA.
 
 ## Sicurezza
 Password web, whitelist WhatsApp, firma Meta verificata, scritture solo con codice di conferma, nessuna credenziale in archivio, segreti solo in `.env`.
+
+Configurazione, limiti e test: [Chat, voce, memoria e automatismi](docs/chat-automatismi.md).

@@ -64,7 +64,7 @@ export default async function Setup() {
       <section className="passo" id="generale">
         <h2>Generale</h2>
         <p>Il nome dell&apos;assistente è <Wordmark name={nome} inline /> e non è modificabile. Il sottotitolo è facoltativo.</p>
-        <Campi campi={campi("generale")} bloccato={bloccato} />
+        <Campi campi={campi("generale", { LEARNING_ENABLED: { options: [{ value: "on", label: "Proponi memorie da approvare" }, { value: "off", label: "Non proporre memorie automaticamente" }] } })} bloccato={bloccato} />
       </section>
 
       <section className="passo profile-section" id="profilo">
@@ -149,20 +149,20 @@ export default async function Setup() {
         </ol>
         <Copia testo={`${origin}/api/telegram`} />
         <Segreti group="telegram" />
-        <Campi campi={campi("telegram")} bloccato={bloccato} />
+        <Campi campi={campi("telegram", { TRANSCRIPTION_PROVIDER: { options: [{ value: "off", label: "Vocali disattivati" }, { value: "openai", label: "Trascrivi con OpenAI" }] } })} bloccato={bloccato} />
         {bloccato && <p className="aiuto">Per salvare gli ID qui, collega il database. Puoi anche impostare TELEGRAM_ALLOWED_CHAT_IDS nelle variabili d’ambiente.</p>}
         <div className="azioni">
           <Verifica kind="telegram" label="Verifica bot" />
           <Verifica kind="telegram-collega" label="Collega Telegram" />
         </div>
-        <p className="aiuto">Chat di testo e approvazioni con «ok CODICE». Documenti e immagini si caricano dal sito. I promemoria automatici restano su WhatsApp.</p>
+        <p className="aiuto">Testo, foto e documenti fino a 15 MB. Vocali fino a 10 minuti con la trascrizione configurata; la trascrizione viene mostrata prima della risposta. Le approvazioni con «ok CODICE» vanno inviate come testo.</p>
       </section>
 
       <section className="passo" id="automatismi">
         <h2>Automatismi</h2>
-        <p>Ogni mattina alle 8 (ora di Madrid): promemoria scadenze, import email con etichetta «{etichetta}», sincronizzazione Calendar se attiva, backup la domenica.</p>
+        <p>Il <a href="/automatismi">Centro automatismi</a> raccoglie interruttori, anteprime, esiti e invii. Controllo giornaliero alle 06 UTC: 08 in estate e 07 in inverno a Roma e Madrid. Importa le email con etichetta «{etichetta}».</p>
         <Segreti group="automatismi" />
-        <Campi campi={campi("automatismi")} bloccato={bloccato} />
+        <p><a className="btn sec" href="/automatismi">Apri centro automatismi</a></p>
         <div className="azioni">
           <form method="post" action="/api/gmail/import"><button className="sec" disabled={!cartella}>Importa email ora</button></form>
           <form method="post" action="/api/setup/backup"><button className="sec" disabled={!cartella}>Backup ora</button></form>

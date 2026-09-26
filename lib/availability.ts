@@ -1,4 +1,5 @@
 import { setting } from "./config";
+import { dbConfigured } from "./db";
 
 /** Controlla i prerequisiti senza chiamare Google e senza inventare dati. */
 export async function archiveIssue(): Promise<string | null> {
@@ -17,5 +18,11 @@ export async function agentIssue(): Promise<string | null> {
   const issue = await archiveIssue();
   if (issue) return issue;
   if (!process.env.ANTHROPIC_API_KEY?.trim()) return "Claude non è ancora collegato. Aggiungi la chiave Anthropic per attivare chat e analisi dei documenti.";
+  return null;
+}
+
+export async function chatIssue(): Promise<string | null> {
+  if (!process.env.ANTHROPIC_API_KEY?.trim()) return "Claude non è ancora collegato. Aggiungi la chiave Anthropic per iniziare a conversare.";
+  if (!dbConfigured()) return "Collega Turso per attivare la chat e conservarne la cronologia.";
   return null;
 }

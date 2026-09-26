@@ -7,8 +7,9 @@ import { brand } from "@/lib/config";
 import Eye3D from "@/app/components/Eye3D";
 import Wordmark from "@/app/components/Wordmark";
 import ConnectionNotice from "@/app/components/ConnectionNotice";
-import { archiveIssue } from "@/lib/availability";
+import { archiveIssue, chatIssue } from "@/lib/availability";
 import HomeContext from "@/app/components/HomeContext";
+import Chat from "@/app/chat/Chat";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ function gruppi(rows: Scad[], oggi: string) {
 }
 
 export default async function Home() {
+  const promptIssue = await chatIssue();
   let issue = await archiveIssue();
   let docs: Awaited<ReturnType<typeof loadAll>> = [];
   let patches: Awaited<ReturnType<typeof pendingPatches>> = [];
@@ -98,13 +100,16 @@ export default async function Home() {
               <div><dt>Struttura</dt><dd>{issue ? "da collegare" : errori.length ? `${errori.length} errori` : "ok"}</dd></div>
             </dl>
           </div>
-        <HomeContext approximateCity={approximateCity} />
+        <div className="home-prompt" id="prompt">
+          <Chat initial={[]} inline disabled={!!promptIssue} />
+          <div className="prompt-links"><Link href="/chat">Cronologia conversazioni ↗</Link>{promptIssue && <Link href="/setup">Configura la chat</Link>}</div>
         </div>
+        </div>
+        <HomeContext approximateCity={approximateCity} />
         </section>
 
         <div className="cockpit-content">
         <div className="quick-actions" aria-label="Azioni rapide">
-          <Link className="btn sec" href="/chat">Chat</Link>
           <Link className="btn sec" href="/carica">Carica</Link>
           <Link className="btn" href="/inbox">Approva {patches.length ? `(${patches.length})` : ""}</Link>
         </div>

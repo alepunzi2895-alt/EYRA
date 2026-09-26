@@ -99,7 +99,8 @@ export function occorrenze(fm: FM, start: string, end: string): string[] {
       out.push(ymd(shift(new Date(Date.UTC(y, m, Math.min(+r.mensile, last))), sw)));
     }
   }
-  return [...new Set(out)].filter((d) => d >= start && d <= end).sort();
+  const notBefore = iso(fm.inizio_ricorrenza);
+  return [...new Set(out)].filter((d) => d >= start && d <= end && (!notBefore || d >= notBefore)).sort();
 }
 
 export function today(): string {

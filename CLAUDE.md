@@ -32,7 +32,12 @@ npm run build
 | `lib/gmail.ts` | import email con etichetta `GMAIL_LABEL` (PEC inoltrata a Gmail) |
 | `lib/fattura.ts` | parsing FatturaPA `.xml` / `.xml.p7m` |
 | `lib/reminders.ts` | promemoria a `REMINDER_DAYS` via template WhatsApp |
-| `lib/backup.ts` | zip settimanale in `_backup/` (ultimi 8) |
+| `lib/backup.ts` | ZIP completo con allegati, tabelle applicative e checksum; ultime 8 copie Drive, mirror HTTPS opzionale |
+| `lib/history.ts` | conversazioni e messaggi su Turso; migrazione cronologie Drive, ricerca e archiviazione |
+| `lib/workflows.ts` | proposte approvabili per memorie, attività, rinnovi e manutenzioni |
+| `lib/automations.ts`, `lib/notifications.ts` | briefing, riepiloghi, registro esiti, coda avvisi e fasce silenziose |
+| `app/chat`, `app/chat/useVoice.ts` | cronologia e prompt riusabile nella Home, streaming Claude e Web Speech del browser |
+| `lib/transcription.ts`, `lib/webhook-state.ts` | trascrizione Telegram opzionale e dedup persistente |
 | `lib/seed.ts` | crea su Drive la cartella col nome dell'assistente da `kb/` |
 | `app/api/whatsapp` | webhook Meta (risponde 200 subito, elabora con `after()`) |
 | `app/api/cron/daily` | unico cron (limite Hobby): promemoria + email + backup domenica |
@@ -48,7 +53,7 @@ La logica del dominio (procedure, onboarding, regole) sta nei **markdown della K
 3. PEC via IMAP diretto (alternativa all'inoltro su Gmail).
 4. Gmail push (Pub/Sub) invece del polling giornaliero.
 5. Google Calendar: test su staging del connettore e della sync scadenze implementati; eventuale sync bidirezionale resta futura.
-6. Dedup webhook persistente (oggi in memoria per istanza) — ora si può fare su Turso.
+6. Dedup webhook WhatsApp persistente (Telegram già su Turso).
 7. Paginazione e ricerca full-text migliore quando l'archivio cresce (>500 file).
 8. Pagina modifica manuale file con anteprima (sempre via patch).
 

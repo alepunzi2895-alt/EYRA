@@ -16,6 +16,18 @@ const phones = (v: string) => v.split(",").map((s) => s.replace(/[\s+\-().]/g, "
 const line = (v: string) => v.replace(/\s+/g, " ").trim();
 
 export const DEFS = {
+  AUTO_BRIEFING: { label: "Briefing del mattino", group: "automatismi", def: "off", check: /^(on|off)$/, err: "on oppure off" },
+  AUTO_WEEKLY: { label: "Riepilogo settimanale (domenica)", group: "automatismi", def: "off", check: /^(on|off)$/, err: "on oppure off" },
+  AUTO_REMINDERS: { label: "Promemoria scadenze e attività", group: "automatismi", def: "on", check: /^(on|off)$/, err: "on oppure off" },
+  AUTO_EMAIL: { label: "Import Gmail giornaliero", group: "automatismi", def: "on", check: /^(on|off)$/, err: "on oppure off" },
+  AUTO_BACKUP: { label: "Backup completo settimanale", group: "automatismi", def: "on", check: /^(on|off)$/, err: "on oppure off" },
+  AUTO_CHANNEL: { label: "Canale degli avvisi", group: "automatismi", def: "whatsapp", check: /^(whatsapp|telegram|both)$/, err: "whatsapp, telegram o both" },
+  AUTO_TIMEZONE: { label: "Fuso degli automatismi", group: "automatismi", def: "Europe/Rome", norm: line, help: "Esempio: Europe/Rome, Europe/Madrid. Il cron Vercel parte alle 06 UTC; l’orario locale cambia con l’ora legale." },
+  QUIET_START: { label: "Inizio fascia silenziosa", group: "automatismi", def: "22", check: /^(\d|1\d|2[0-3])$/, err: "ora da 0 a 23" },
+  QUIET_END: { label: "Fine fascia silenziosa", group: "automatismi", def: "7", check: /^(\d|1\d|2[0-3])$/, err: "ora da 0 a 23", help: "Stessa ora di inizio = nessuna fascia silenziosa. Gli avvisi in attesa partono alla prossima esecuzione fuori fascia." },
+  TELEGRAM_DIGEST_CHAT_IDS: { label: "Chat Telegram per i riepiloghi", group: "telegram", def: "", norm: csv, check: /^(\d{1,16}(,\d{1,16})*)?$/, err: "ID chat private separati da virgola", help: "Vuoto = tutte le chat autorizzate. Gli ID devono essere anche nella lista autorizzata." },
+  TRANSCRIPTION_PROVIDER: { label: "Trascrizione vocali Telegram", group: "telegram", def: "off", check: /^(off|openai)$/, err: "off oppure openai", help: "openai richiede OPENAI_API_KEY nelle variabili d’ambiente. L’audio viene inviato al servizio di trascrizione." },
+  LEARNING_ENABLED: { label: "Proposte di apprendimento dalle chat", group: "generale", def: "on", check: /^(on|off)$/, err: "on oppure off", help: "Le preferenze apprese restano proposte finché non le approvi. Puoi rivederle nella pagina Memoria." },
   APP_TAGLINE: { label: "Sottotitolo", group: "generale", def: "", norm: line, check: /^.{0,60}$/, err: "max 60 caratteri",
     help: "Facoltativo. Nessun sottotitolo predefinito." },
   ANTHROPIC_MODEL: { label: "Modello Claude", group: "claude", def: "claude-sonnet-5", norm: line, check: /^[a-z0-9][a-z0-9.\-]{2,80}$/, err: "ID modello non valido",
@@ -62,6 +74,9 @@ export const SECRETS: { key: string; label: string; group: Group | "accesso" | "
   { key: "TELEGRAM_BOT_TOKEN", label: "Token bot Telegram", group: "telegram" },
   { key: "TELEGRAM_WEBHOOK_SECRET", label: "Segreto webhook Telegram", group: "telegram" },
   { key: "CRON_SECRET", label: "Segreto cron", group: "automatismi" },
+  { key: "OPENAI_API_KEY", label: "Chiave trascrizione vocali", group: "telegram" },
+  { key: "BACKUP_MIRROR_URL", label: "Endpoint HTTPS per copia backup separata", group: "automatismi" },
+  { key: "BACKUP_MIRROR_TOKEN", label: "Token copia backup separata", group: "automatismi" },
 ];
 
 export type Source = "web" | "env" | "default";
@@ -118,6 +133,7 @@ export async function save(values: Partial<Record<Key, string>>, who: string): P
     const v = d.norm ? d.norm(raw ?? "") : (raw ?? "").trim();
     if (v && d.check && !d.check.test(v)) { errors[k] = d.err ?? "valore non valido"; continue; }
     if (k === "REMINDER_DAYS" && v && list(v).some((n) => +n > 90)) { errors[k] = "max 90 giorni"; continue; }
+    if (k === "AUTO_TIMEZONE" && v) { try { new Intl.DateTimeFormat("it", { timeZone: v }); } catch { errors[k] = "Fuso orario non valido"; continue; } }
     clean.push([k, v]);
   }
   if (Object.keys(errors).length) return { ok: false, errors };

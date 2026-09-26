@@ -68,7 +68,7 @@ Telegram usa un bot e ID di chat private, non numeri di telefono.
 5. Apri la chat con il bot e invia `/start`: ricevi il tuo ID chat. Incollalo negli **ID chat Telegram autorizzati** e salva. Per più chat usa la virgola. Senza database puoi usare `TELEGRAM_ALLOWED_CHAT_IDS` nelle variabili d’ambiente.
 6. Scrivi al bot. Sono supportati messaggi di testo e approvazioni `ok CODICE`; documenti e immagini si caricano dal sito. L’assistente richiede Anthropic e l’archivio Google configurati. I promemoria automatici usano ancora WhatsApp.
 
-Il webhook verifica il segreto Telegram prima di leggere l’aggiornamento, accetta solo chat private autorizzate e ignora gruppi e canali. `/start` e `/id` restituiscono soltanto l’ID della chat del mittente, senza accedere all’archivio. Deduplica dei retry: best effort in memoria per istanza, come WhatsApp.
+Il webhook verifica il segreto Telegram prima di leggere l’aggiornamento, accetta solo chat private autorizzate e ignora gruppi e canali. `/start` e `/id` restituiscono soltanto l’ID della chat del mittente, senza accedere all’archivio. La deduplicazione degli aggiornamenti elaborati è persistente su Turso.
 
 ## Collegare Google Calendar
 
@@ -88,7 +88,15 @@ Riferimenti: [scope Google Calendar](https://developers.google.com/workspace/cal
 
 ## Navigare prima di collegare Google
 
-Con l’accesso web configurato puoi esplorare dashboard, calendario, aree, DNA, occhio, archivio, chat, caricamenti e impostazioni. Se Google o la cartella archivio mancano, viene mostrato un invito a completare il collegamento. I contatori non disponibili sono indicati con `—`; non vengono caricati dati demo in produzione. Chat e caricamenti restano visibili ma si attivano dopo aver configurato Google, cartella archivio e Anthropic. Le relative API rifiutano l’elaborazione con un messaggio leggibile finché mancano i prerequisiti.
+Con l’accesso web configurato puoi esplorare dashboard, calendario, aree, DNA, occhio, archivio, chat, caricamenti e impostazioni. Se Google o la cartella archivio mancano, viene mostrato un invito a completare il collegamento. I contatori non disponibili sono indicati con `—`; non vengono caricati dati demo in produzione. La chat si attiva con Anthropic e Turso anche senza Google. Caricamenti nell’archivio, memorie e attività richiedono anche il collegamento Google.
+
+## Prompt, voce e automatismi
+
+Nella Home scrivi nel prompt sotto l’occhio: le risposte compaiono lì sotto. Premi **Attiva risposte vocali** per ascoltarle mentre arrivano; **Detta messaggio** converte il microfono in testo da rivedere e inviare. La voce web non richiede un’altra chiave API, ma dipende dai servizi disponibili nel browser. **Cronologia conversazioni** permette di ritrovare e organizzare i dialoghi.
+
+**Memoria** conserva le preferenze solo dopo approvazione. **Attività e rinnovi** permette di proporre pratiche, prossimi passi, manutenzioni e preavvisi. **Automatismi** contiene interruttori, anteprime, esiti e consegne: briefing e riepilogo sono inizialmente spenti. La trascrizione dei file vocali Telegram è opzionale e richiede un servizio separato; la sola chiave Anthropic non fornisce questa funzione.
+
+Configurazione e limiti: [Chat, voce, memoria e automatismi](docs/chat-automatismi.md).
 
 ## 9. Primo avvio
 Su WhatsApp o in Chat: «Iniziamo l'onboarding». EYRA ti fa domande a blocchi e crea l'archivio. Ogni modifica chiede conferma: «ok CODICE».

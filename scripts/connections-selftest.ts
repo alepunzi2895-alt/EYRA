@@ -20,7 +20,7 @@ export async function testConnections() {
     for (const handler of [chat, upload]) {
       const res = await handler(new NextRequest("https://example.test/api/test", { method: "POST" }));
       assert.equal(res.status, 503);
-      assert.match((await res.json()).reply, /Google/);
+      assert.match((await res.json()).reply, /Google|Claude/);
     }
     assert.equal(calls, 0, "nessuna chiamata esterna senza Google");
     process.env.KB_LOCAL_DIR = "kb-demo";

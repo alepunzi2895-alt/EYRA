@@ -14,7 +14,7 @@ export const oneLine = (s: string) => s.replace(/\s*\n+\s*/g, " • ").replace(/
 
 export async function dueReminders(): Promise<Scad[]> {
   const oggi = today(), set = await reminderDays();
-  return scadenze(await loadAll(true), Math.max(...set, 0) + 1).filter((s) => set.includes(days(oggi, s.data)));
+  return scadenze(await loadAll(true), 365).filter(s => set.includes(days(oggi, s.data)) || days(oggi, s.data) === s.preavviso);
 }
 
 export async function sendReminders(): Promise<number> {
@@ -26,7 +26,8 @@ export async function sendReminders(): Promise<number> {
     return `${d === 0 ? "OGGI" : `tra ${d} gg`} ${s.data.slice(8, 10)}/${s.data.slice(5, 7)} ${s.titolo}`;
   }).join(" • ");
   const s = await settings();
-  await Promise.all((await digestNumbers()).map((n) => sendTemplate(n, s.WA_TEMPLATE_DIGEST, [oneLine(line)])));
+  const errors = await Promise.all((await digestNumbers()).map((n) => sendTemplate(n, s.WA_TEMPLATE_DIGEST, [oneLine(line)])));
+  if (errors.some(Boolean)) throw new Error("Uno o più promemoria WhatsApp non sono stati consegnati.");
   return rows.length;
 }
 

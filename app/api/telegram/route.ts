@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse, after } from "next/server";
-import { verifyTelegramSecret, telegramAllowed, sendTelegramText, privateMessage } from "@/lib/telegram";
+import { verifyTelegramSecret, telegramAllowed, sendTelegramText, privateMessage, telegramAttachment } from "@/lib/telegram";
 import { runAgent } from "@/lib/agent";
+import { claimWebhook, finishWebhook } from "@/lib/webhook-state";
+import { transcribe } from "@/lib/transcription";
+import { writeBinary } from "@/lib/drive";
+import { randomUUID } from "node:crypto";
+import { chatIssue, archiveIssue } from "@/lib/availability";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-// Come per WhatsApp: dedup best effort per istanza, con memoria limitata.
+// Fast path per istanza; gli aggiornamenti autorizzati sono deduplicati anche su Turso.
 const seen = new Set<number>();
 
 export async function POST(req: NextRequest) {
@@ -19,22 +24,37 @@ export async function POST(req: NextRequest) {
   const start = /^\/(start|id)(?:@[a-z0-9_]+)?(?:\s|$)/i.test(m.text ?? "");
   // /start e /id mostrano solo l’ID della propria chat, mai dati dell’archivio.
   if (!start && !(await telegramAllowed(m.chat.id))) return NextResponse.json({ ok: true });
+  const key = `telegram-${update.id}`;
+  if (!start) {
+    try { if (!(await claimWebhook(key))) return NextResponse.json({ ok: true }); }
+    catch { return new NextResponse("storage unavailable", { status: 503 }); }
+  }
   seen.add(update.id);
   if (seen.size > 2000) seen.delete(seen.values().next().value!);
   after(async () => {
     try {
       if (start) {
         await sendTelegramText(m.chat.id, `Il tuo ID chat è ${m.chat.id}. Inseriscilo in Impostazioni → Telegram → ID chat autorizzati, poi salva. Puoi quindi scrivere all’assistente.`);
-      } else if (!m.text) {
-        await sendTelegramText(m.chat.id, "Telegram supporta per ora messaggi di testo. Carica documenti e immagini dal sito.");
       } else {
-        const reply = await runAgent({ key: `tg-${m.chat.id}`, who: `telegram:${m.from.id}`, channel: "telegram", text: m.text });
+        const issue = await chatIssue(); if (issue) { await sendTelegramText(m.chat.id, issue); await finishWebhook(key, "done"); return; }
+        const attachment = await telegramAttachment(m);
+        let text = m.text || m.caption || "Analizza l’allegato e proponi le informazioni da conservare.";
+        if (attachment?.voice) {
+          text = await transcribe(attachment.data, attachment.name, attachment.mime);
+          await sendTelegramText(m.chat.id, `Ho trascritto: ${text}\n\nPer approvare modifiche invia il codice come messaggio di testo.`);
+        } else if (attachment) {
+          if (!await archiveIssue()) await writeBinary(`90-inbox/allegati/${randomUUID()}-${attachment.name}`, attachment.data, attachment.mime);
+        }
+        else if (!m.text) { await sendTelegramText(m.chat.id, "Invia un testo, una foto, un documento o un vocale."); await finishWebhook(key, "done"); return; }
+        const reply = await runAgent({ key: `tg-${m.chat.id}`, who: `telegram:${m.from.id}`, channel: "telegram", text, confirmationText: m.text || "", attachments: attachment && !attachment.voice ? [attachment] : [] });
         await sendTelegramText(m.chat.id, reply);
+        await finishWebhook(key, "done");
       }
-    } catch {
+    } catch (e) {
       seen.delete(update.id);
+      if (!start) await finishWebhook(key, "error").catch(() => {});
       console.error("Elaborazione Telegram non riuscita.");
-      await sendTelegramText(m.chat.id, "Non riesco a completare la richiesta. Verifica i collegamenti nelle Impostazioni e riprova.").catch(() => {});
+      await sendTelegramText(m.chat.id, e instanceof Error && /trascrizione|vocal|Allegato|Formato|Download/i.test(e.message) ? e.message : "Non riesco a completare la richiesta. Verifica i collegamenti nelle Impostazioni e invia di nuovo il messaggio.").catch(() => {});
     }
   });
   return NextResponse.json({ ok: true });

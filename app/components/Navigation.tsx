@@ -15,10 +15,13 @@ export default function Navigation({ name, tagline, inbox }: { name: string; tag
   const links = [
     { href: "/", label: "Home" },
     { href: "/calendario", label: "Calendario" },
+    { href: "/attivita", label: "Attività e rinnovi" },
+    { href: "/automatismi", label: "Automatismi" },
+    { href: "/memoria", label: "Memoria" },
     { href: "/cartella", label: "Archivio" },
     { href: "/carica", label: "Carica" },
     { href: "/inbox", label: "Da approvare" },
-    { href: "/chat", label: "Chat" },
+    { href: "/chat", label: "Cronologia conversazioni" },
     { href: "/dna", label: "DNA" },
     { href: "/setup", label: "Impostazioni" },
   ];
@@ -34,6 +37,7 @@ export default function Navigation({ name, tagline, inbox }: { name: string; tag
         <span>Menu</span>
       </button>
       <span className="app-location">{current}</span>
+      <Link href="/#prompt" className="btn sec">Parla con l’assistente</Link>
     </header>
     <dialog id="menu-principale" className="navigation-drawer" ref={drawer} aria-labelledby="menu-titolo"
       onClose={() => setOpen(false)} onClick={(event) => { if (event.target === event.currentTarget) close(); }}>
