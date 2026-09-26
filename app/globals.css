@@ -53,7 +53,6 @@ a:hover { text-decoration-color: var(--inchiostro); }
 .wordmark.wordmark-inline { width: 4em; max-width: none; vertical-align: -.025em; }
 button .wordmark-inline img { filter: brightness(0); }
 .brand .wordmark { width: 134px; }
-.cockpit-head h1 { margin: 5px 0 14px; }
 .brand small { display: block; font-weight: 400; font-size: 13px; color: var(--fondale); letter-spacing: 0; margin-top: 4px; }
 .rail nav { display: flex; flex-direction: column; gap: 2px; }
 .rail nav a { text-decoration: none; padding: 7px 10px; border-radius: var(--r-s); font-weight: 500; display: flex; justify-content: space-between; }
@@ -81,14 +80,27 @@ body:has(.cockpit) .setup-link { color: #9ebcaf; }
 body:has(.cockpit) .rail nav a:hover { background: rgba(110,231,183,.08); }
 body:has(.cockpit) .btn.sec { color: #ecfdf5; border-color: rgba(110,231,183,.54); background: rgba(255,255,255,.035); }
 body:has(.cockpit) .btn.sec:hover { border-color: #10b981; }
-body:has(.cockpit) main { max-width: none; background:
+body:has(.cockpit) main { max-width: none; padding: 0; background:
   radial-gradient(circle at 60% 8%, rgba(16,185,129,.14), transparent 30%),
   linear-gradient(180deg, rgba(10,27,20,.92), #060f0c 380px); }
-.cockpit { display: grid; gap: 26px; width: 100%; min-width: 0; }
-.cockpit-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+.cockpit { width: 100%; min-width: 0; }
+.cockpit-content { display: grid; gap: 26px; padding: 24px clamp(20px, 3vw, 64px) 64px; }
+.home-hero { padding: 36px clamp(20px, 3vw, 64px) 30px; color: #ecfdf5; background: linear-gradient(180deg, rgba(2,9,7,.12), rgba(2,9,7,.24) 65%, #060f0c), url('/eyra-cosmos.png') center / cover; }
+.home-wordmark { text-align: center; margin: 0; line-height: 1; }
+.home-wordmark .wordmark { width: clamp(220px, 27vw, 390px); filter: drop-shadow(0 0 8px #a7f3d066) drop-shadow(0 0 28px #10b98180); }
+.home-context { grid-column: 1 / -1; display: flex; align-items: flex-start; justify-content: center; gap: 24px 48px; margin: 4px auto 0; width: 100%; text-align: center; }
+.home-context > div { display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 0; }
+.context-label { color: #a3c6b7; font-size: 10px; text-transform: uppercase; letter-spacing: .18em; }
+.home-date time, .home-place > span:not(.context-label) { font-size: 13px; overflow-wrap: anywhere; }
+.home-clock time { font-size: 27px; line-height: 1.15; font-weight: 300; letter-spacing: .1em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.home-place { max-width: 310px; }
+.home-place button { background: transparent; color: #a7f3d0; font-size: 11px; font-weight: 400; padding: 5px 10px; min-height: 32px; border: 1px solid #6ee7b744; }
+.home-place button:hover { background: #103829; }
+.home-place small { font-size: 11px; color: #a3c6b7; }
+.home-place small:empty { display: none; }
 .eyebrow, .panel-label { margin: 0 0 6px; color: #34d399; text-transform: uppercase; font-size: 11px; font-weight: 500; letter-spacing: .26em; }
 .quick-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-.jarvis-grid { min-height: 430px; display: grid; grid-template-columns: minmax(200px, 1fr) minmax(340px, 1.7fr) minmax(200px, 1fr); gap: 18px; align-items: stretch; border-radius: 8px; padding: 20px; position: relative; overflow: hidden; color: #ecfdf5; background: linear-gradient(rgba(2,9,7,.24), rgba(2,9,7,.48)), url('/eyra-cosmos.png') center center / cover; box-shadow: inset 0 0 0 1px rgba(110,231,183,.18), 0 24px 68px rgba(0,0,0,.34); }
+.jarvis-grid { min-height: 430px; display: grid; grid-template-columns: minmax(200px, 1fr) minmax(340px, 1.7fr) minmax(200px, 1fr); gap: 18px; align-items: stretch; position: relative; color: #ecfdf5; }
 .radar-panel { position: relative; z-index: 1; align-self: center; border: 1px solid rgba(110,231,183,.18); background: rgba(5,18,12,.68); border-radius: 8px; padding: 18px; min-height: 210px; display: flex; flex-direction: column; justify-content: center; box-shadow: inset 0 0 24px rgba(52,211,153,.09); }
 .radar-panel strong { display: block; font-size: clamp(44px, 6vw, 78px); line-height: .9; letter-spacing: -.06em; }
 .radar-panel span { color: rgba(236,253,245,.72); }
@@ -237,10 +249,14 @@ button:disabled { opacity: .5; cursor: wait; }
   .cartelle { columns: 1; }
   .marea-head strong { font-size: 34px; }
   .chat { height: calc(100vh - 150px); }
-  .cockpit-head, .mission-strip { grid-template-columns: 1fr; flex-direction: column; }
+  .mission-strip { grid-template-columns: 1fr; flex-direction: column; }
+  .home-context { flex-wrap: wrap; gap: 24px; }
+  .home-date { flex-basis: 100%; }
+  .home-place { max-width: 240px; }
+  .home-hero { padding-top: 28px; }
   .quick-actions { justify-content: flex-start; }
   .jarvis-grid { grid-template-columns: 1fr; min-height: 0; }
-  .radar-panel { min-height: 150px; }
+  .radar-panel { min-height: 150px; order: 1; }
   .orbital-core { min-height: 360px; order: -1; }
   .ops-grid { grid-template-columns: 1fr; }
   .calendar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -250,10 +266,12 @@ button:disabled { opacity: .5; cursor: wait; }
   main { padding-inline: 30px; }
   .jarvis-grid { grid-template-columns: 1fr 1.35fr; }
   .orbital-core { grid-column: 1 / -1; order: -1; min-height: 360px; }
-  .radar-panel { min-height: 170px; }
+  .radar-panel { min-height: 170px; order: 1; }
   .ops-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: no-preference) {
+  .home-wordmark .wordmark { animation: wordmark-glow 6s ease-in-out infinite alternate; }
+  @keyframes wordmark-glow { to { filter: drop-shadow(0 0 12px #a7f3d099) drop-shadow(0 0 38px #10b981aa); } }
   .pin { animation: sale .6s ease-out both; transform-origin: bottom; }
   @keyframes sale { from { transform: translateX(-5px) scaleY(0); } }
   @keyframes equalize { 0%, 100% { transform: scaleY(.5); opacity: .55; } 50% { transform: scaleY(1); opacity: 1; } }

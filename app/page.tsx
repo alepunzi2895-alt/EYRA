@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { Shell } from "@/app/components/Shell";
 import { loadAll, scadenze, validate, today, addDays, Scad } from "@/lib/kb";
 import { pendingPatches } from "@/lib/patch";
@@ -7,6 +8,7 @@ import Eye3D from "@/app/components/Eye3D";
 import Wordmark from "@/app/components/Wordmark";
 import ConnectionNotice from "@/app/components/ConnectionNotice";
 import { archiveIssue } from "@/lib/availability";
+import HomeContext from "@/app/components/HomeContext";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +46,15 @@ export default async function Home() {
   const count = (n: number) => issue ? "—" : n;
 
   const cfg = await brand();
+  const requestHeaders = await headers();
+  let approximateCity = "";
+  // Vercel encodes city names in its request headers. Local development has no city.
+  if (process.env.VERCEL === "1") {
+    const city = requestHeaders.get("x-vercel-ip-city");
+    if (city) {
+      try { approximateCity = decodeURIComponent(city).slice(0, 120); } catch { /* unavailable */ }
+    }
+  }
   const oggi = today();
   const rows = scadenze(docs, GG, oggi);
   const errori = validate(docs);
@@ -59,21 +70,9 @@ export default async function Home() {
   return (
     <Shell inbox={patches.length}>
       <div className="cockpit">
-        {issue && <ConnectionNotice message={issue} />}
-        <header className="cockpit-head">
-          <div>
-            <p className="eyebrow">Home · cruscotto operativo</p>
-            <h1><Wordmark name={cfg.name} /></h1>
-            <p className="sub">{new Date(oggi + "T12:00:00Z").toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })}</p>
-          </div>
-          <div className="quick-actions" aria-label="Azioni rapide">
-            <Link className="btn sec" href="/chat">Chat</Link>
-            <Link className="btn sec" href="/carica">Carica</Link>
-            <Link className="btn" href="/inbox">Approva {patches.length ? `(${patches.length})` : ""}</Link>
-          </div>
-        </header>
-
-        <section className="jarvis-grid" aria-label="Sintesi assistente">
+        <section className="home-hero" aria-label="Sintesi assistente">
+        <h1 className="home-wordmark"><Wordmark name={cfg.name} /></h1>
+        <div className="jarvis-grid">
           <div className="radar-panel left">
             <p className="panel-label">attenzione</p>
             <strong>{count(entro7)}</strong>
@@ -99,7 +98,17 @@ export default async function Home() {
               <div><dt>Struttura</dt><dd>{issue ? "da collegare" : errori.length ? `${errori.length} errori` : "ok"}</dd></div>
             </dl>
           </div>
+        <HomeContext approximateCity={approximateCity} />
+        </div>
         </section>
+
+        <div className="cockpit-content">
+        <div className="quick-actions" aria-label="Azioni rapide">
+          <Link className="btn sec" href="/chat">Chat</Link>
+          <Link className="btn sec" href="/carica">Carica</Link>
+          <Link className="btn" href="/inbox">Approva {patches.length ? `(${patches.length})` : ""}</Link>
+        </div>
+        {issue && <ConnectionNotice message={issue} />}
 
         <section className="mission-strip" aria-label={`Scadenze nei prossimi ${GG} giorni`}>
           <div>
@@ -176,6 +185,7 @@ export default async function Home() {
             <div className={nonValidati ? "alert" : ""}><b>{count(nonValidati)}</b><span>file non confermati da professionista</span></div>
             <div className={errori.length ? "alert" : ""}><b>{count(errori.length)}</b><span>errori di struttura{errori.length > 0 && <>: {errori.slice(0, 3).join("; ")}</>}</span></div>
           </aside>
+        </div>
         </div>
       </div>
     </Shell>
