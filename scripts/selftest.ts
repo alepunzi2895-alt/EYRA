@@ -43,6 +43,7 @@ const ok = (c: unknown, m: string) => { console.log(`${c ? "✓" : "✗"} ${m}`)
   await (await import("./profile-selftest")).testProfile();
   await (await import("./workspace-selftest")).testWorkspace();
   await (await import("./chat-stream-selftest")).testChatStream();
+  await (await import("./mobile-audio-selftest")).testMobileAudio();
 
   const xml = '<?xml version="1.0"?><p:FatturaElettronica><Numero>7</Numero><ImportoTotaleDocumento>100.00</ImportoTotaleDocumento></p:FatturaElettronica>';
   ok(summarize(extractXml(Buffer.concat([Buffer.from([0x30, 0x80]), Buffer.from(xml), Buffer.from([0, 0])]))!).includes("Totale documento: 100.00"), "fattura p7m");

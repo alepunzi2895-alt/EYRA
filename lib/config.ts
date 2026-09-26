@@ -8,7 +8,7 @@ export const APP_NAME = "EYRA" as const;
  * Precedenza: valore salvato nel DB (Turso) > variabile d'ambiente > default.
  * I segreti NON passano da qui: restano solo in .env (vedi SECRETS).
  */
-export type Group = "generale" | "claude" | "google" | "calendar" | "whatsapp" | "telegram" | "automatismi";
+export type Group = "generale" | "claude" | "google" | "calendar" | "whatsapp" | "telegram" | "automatismi" | "voce";
 type Def = { label: string; group: Group; def: string; help?: string; norm?: (v: string) => string; check?: RegExp; err?: string };
 
 const csv = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean).join(",");
@@ -16,6 +16,7 @@ const phones = (v: string) => v.split(",").map((s) => s.replace(/[\s+\-().]/g, "
 const line = (v: string) => v.replace(/\s+/g, " ").trim();
 
 export const DEFS = {
+  WEB_AUDIO_PROVIDER: { label: "Audio AI nel sito", group: "voce", def: "off", check: /^(off|openai)$/, err: "off oppure openai", help: "OpenAI aggiunge 13 timbri e trascrizione delle registrazioni. Richiede una chiave separata e credito API. Testo e audio sono inviati a OpenAI. Le voci del dispositivo restano disponibili." },
   AUTO_BRIEFING: { label: "Briefing del mattino", group: "automatismi", def: "off", check: /^(on|off)$/, err: "on oppure off" },
   AUTO_WEEKLY: { label: "Riepilogo settimanale (domenica)", group: "automatismi", def: "off", check: /^(on|off)$/, err: "on oppure off" },
   AUTO_REMINDERS: { label: "Promemoria scadenze e attività", group: "automatismi", def: "on", check: /^(on|off)$/, err: "on oppure off" },
@@ -74,7 +75,7 @@ export const SECRETS: { key: string; label: string; group: Group | "accesso" | "
   { key: "TELEGRAM_BOT_TOKEN", label: "Token bot Telegram", group: "telegram" },
   { key: "TELEGRAM_WEBHOOK_SECRET", label: "Segreto webhook Telegram", group: "telegram" },
   { key: "CRON_SECRET", label: "Segreto cron", group: "automatismi" },
-  { key: "OPENAI_API_KEY", label: "Chiave trascrizione vocali", group: "telegram" },
+  { key: "OPENAI_API_KEY", label: "Chiave voci AI e trascrizione (anche Telegram)", group: "voce" },
   { key: "BACKUP_MIRROR_URL", label: "Endpoint HTTPS per copia backup separata", group: "automatismi" },
   { key: "BACKUP_MIRROR_TOKEN", label: "Token copia backup separata", group: "automatismi" },
 ];

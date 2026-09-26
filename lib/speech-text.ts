@@ -1,7 +1,8 @@
 /** Short, complete phrases can be spoken while the rest is still streaming. */
 export function speechChunk(buffer: string, flush = false): { text: string; rest: string } {
   const end = buffer.search(/[.!?](?:\s|$)|\n/);
-  const boundary = end >= 0 ? end + 1 : buffer.length > 220 ? buffer.lastIndexOf(" ", 220) : flush ? buffer.length : 0;
+  const space = buffer.lastIndexOf(" ", 220);
+  const boundary = end >= 0 && end < 220 ? end + 1 : buffer.length > 220 ? (space > 0 ? space : 220) : flush ? buffer.length : 0;
   if (boundary <= 0) return { text: "", rest: buffer };
   return { text: buffer.slice(0, boundary), rest: buffer.slice(boundary) };
 }

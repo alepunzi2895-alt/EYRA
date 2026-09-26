@@ -26,7 +26,7 @@ export default function Chat({ initial, disabled = false, conversationId = "web"
   }, [msgs, busy, inline]);
 
   async function send() {
-    if (disabled || sending.current || voice.listening || preparing) return;
+    if (disabled || sending.current || voice.listening || voice.processing || preparing) return;
     const f = files;
     if (!text.trim() && !f?.length) return;
     const fd = new FormData();
@@ -75,7 +75,7 @@ export default function Chat({ initial, disabled = false, conversationId = "web"
         {!inline && msgs.length === 0 && <p className="vuoto">Chiedi scadenze, incolla un'email del commercialista, allega PDF o Excel. Le modifiche all'archivio arrivano in «Da approvare».</p>}
         {msgs.map((m, i) => (
           <div key={i} className={`msg ${m.role === "user" ? "io" : "agente"}`}>
-            {m.role === "user" ? m.text : <><ReactMarkdown remarkPlugins={[remarkGfm]}>{link(m.text)}</ReactMarkdown>{m.text && voice.available && (!busy || i < msgs.length - 1) && <button className="sec listen-message" onClick={() => voice.replay(m.text)}>Ascolta</button>}</>}
+            {m.role === "user" ? m.text : <><ReactMarkdown remarkPlugins={[remarkGfm]}>{link(m.text)}</ReactMarkdown>{m.text && voice.available && (!busy || i < msgs.length - 1) && <button className="sec listen-message" disabled={voice.listening || voice.processing} onClick={() => voice.replay(m.text)}>Ascolta</button>}</>}
           </div>
         ))}
         {busy && <div className="msg agente">Sto lavorando…</div>}
@@ -83,27 +83,32 @@ export default function Chat({ initial, disabled = false, conversationId = "web"
       </div>
       <div className="composer">
         <div className="voice-controls">
-          {voice.microphone && <button className="sec" disabled={disabled || busy} aria-pressed={voice.listening} onClick={() => voice.dictate(text, value => { setText(value); setDictated(true); })}>{voice.listening ? "Termina dettatura" : "Detta messaggio"}</button>}
-          {voice.available && <><button className="sec" aria-pressed={voice.enabled} onClick={voice.toggle}>{voice.enabled ? "Voce attiva" : "Attiva risposte vocali"}</button><button className="sec" onClick={voice.stop}>Ferma voce</button></>}
-          <span role="status">{voice.listening ? "Ti ascolto…" : voice.status}</span>
+          {voice.microphone && <button className="sec" disabled={disabled || busy || voice.processing} aria-pressed={voice.listening} onClick={() => voice.dictate(text, value => { setText(value); setDictated(true); })}>{voice.listening ? "Termina" : voice.inputMode === "recording" && voice.cloud.enabled ? "Registra messaggio" : "Detta messaggio"}</button>}
+          {voice.available && <><button className="sec" disabled={voice.listening || voice.processing} aria-pressed={voice.enabled} onClick={voice.toggle}>{voice.enabled ? "Voce attiva" : "Attiva risposte vocali"}</button><button className="sec" onClick={voice.stop}>Ferma voce</button></>}
+          {voice.selectedVoice.startsWith("ai:") && voice.cloud.enabled && <button className="sec" disabled={voice.listening || voice.processing} onClick={voice.resume}>Riprendi audio</button>}
+          <span role="status">{voice.status}</span>
         </div>
         {voice.available && <details className="voice-settings">
           <summary>Scegli voce</summary>
           <div className="voice-choice">
-            <label>Voce per le risposte<select value={voice.selectedVoice} disabled={busy || voice.listening} onChange={e => voice.selectVoice(e.target.value)}>
+            <label>Voce per le risposte<select value={voice.selectedVoice} disabled={busy || voice.listening || voice.processing} onChange={e => voice.selectVoice(e.target.value)}>
               <option value="">Automatica · italiano</option>
-              {voice.selectedVoice && !voice.voices.some(v => v.voiceURI === voice.selectedVoice) && <option value={voice.selectedVoice} disabled>Voce salvata non disponibile · uso automatica</option>}
-              {voice.voices.map(v => <option key={v.voiceURI} value={v.voiceURI}>{v.name} · {v.lang} · {v.localService ? "sul dispositivo" : "online"}</option>)}
+              {voice.selectedVoice && !voice.selectedVoice.startsWith("ai:") && !voice.voices.some(v => v.voiceURI === voice.selectedVoice) && <option value={voice.selectedVoice} disabled>Voce salvata non disponibile · uso automatica</option>}
+              <optgroup label="Voci AI · OpenAI" disabled={!voice.cloud.enabled}>{voice.aiVoices.map(v => <option key={v} value={`ai:${v}`}>{v.charAt(0).toUpperCase() + v.slice(1)} · AI{voice.cloud.enabled ? "" : " · da attivare"}</option>)}</optgroup>
+              <optgroup label="Voci del dispositivo">{voice.voices.map(v => <option key={v.voiceURI} value={v.voiceURI}>{v.name} · {v.lang} · {v.localService ? "sul dispositivo" : "online"}</option>)}</optgroup>
             </select></label>
-            <button type="button" className="sec" disabled={busy || voice.listening} onClick={voice.preview}>Ascolta anteprima</button>
+            <button type="button" className="sec" disabled={busy || voice.listening || voice.processing || (voice.selectedVoice.startsWith("ai:") && !voice.cloud.enabled)} onClick={voice.preview}>Ascolta anteprima</button>
           </div>
+          <p>{voice.cloud.reason} {!voice.cloud.enabled && <a href="/setup#voce">Configura Audio AI</a>}</p>
+          {voice.voices.filter(v => v.lang.startsWith("it")).length <= 1 && <p>Questo browser offre al massimo una voce italiana: altre voci del telefono potrebbero non essere esposte a Safari. I timbri AI sono indipendenti da questa lista.</p>}
+          {voice.cloud.enabled && voice.recordingSupported && <div className="voice-choice"><label>Metodo di dettatura<select disabled={busy || voice.listening || voice.processing} value={voice.inputMode} onChange={e => voice.setInputMode(e.target.value)}><option value="recording">Registra e trascrivi · OpenAI</option><option value="browser" disabled={!voice.nativeMicrophone}>Dettatura del browser · testo in diretta</option></select></label></div>}
           <p>La scelta viene ricordata in questo browser e vale anche per «Ascolta». Le voci disponibili dipendono dal dispositivo; quelle online possono usare un servizio remoto.</p>
           {!voice.voices.length && <p>Il browser non ha ancora fornito l’elenco delle voci. Puoi provare la voce automatica.</p>}
         </details>}
-        <textarea rows={inline ? 2 : undefined} disabled={disabled || voice.listening} value={text} onChange={(e) => setText(e.target.value)} placeholder={disabled ? "Collega Claude e Turso nelle Impostazioni" : inline ? "Di cosa ci occupiamo? Scrivi o parla…" : "Scrivi o detta…"} aria-label="Messaggio"
+        <textarea rows={inline ? 2 : undefined} disabled={disabled || voice.listening || voice.processing} value={text} onChange={(e) => setText(e.target.value)} placeholder={disabled ? "Collega Claude e Turso nelle Impostazioni" : inline ? "Di cosa ci occupiamo? Scrivi o parla…" : "Scrivi o detta…"} aria-label="Messaggio"
           onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send(); }} />
-        <button onClick={send} disabled={busy || disabled || voice.listening || preparing}>Invia</button>
-        <small className="voice-help">{voice.microphone ? "Controlla il testo dettato prima di inviare. La dettatura può usare i servizi del browser." : "Dettatura non supportata da questo browser: puoi usare il microfono della tastiera."} {dictated && "Per approvare una modifica, invia il codice in un nuovo messaggio scritto."}</small>
+        <button onClick={send} disabled={busy || disabled || voice.listening || voice.processing || preparing}>Invia</button>
+        <small className="voice-help">{voice.processing ? "Trascrizione in corso…" : voice.inputMode === "recording" && voice.cloud.enabled ? "Registra, premi Termina e controlla il testo. L’audio viene inviato a OpenAI per la trascrizione." : voice.microphone ? "Controlla il testo dettato prima di inviare. La dettatura usa i servizi del browser; su iPhone puoi anche usare il microfono della tastiera." : "Dettatura non disponibile: usa HTTPS e consenti il microfono, oppure usa il microfono della tastiera."} {dictated && "Per approvare una modifica, invia il codice in un nuovo messaggio scritto."}</small>
         <AttachmentPicker files={files} onChange={setFiles} disabled={disabled || busy} onProcessing={setPreparing} />
       </div>
     </div>

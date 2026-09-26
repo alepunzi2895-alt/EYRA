@@ -16,7 +16,7 @@ const DB_TESTO = {
   turso: "Collegato a Turso. Le impostazioni qui sotto si salvano nel database.",
   assente: "Nessun database: imposta TURSO_DATABASE_URL e TURSO_AUTH_TOKEN in .env, poi riavvia l'app.",
 };
-const SEZIONI = [["generale", "Generale"], ["profilo", "Parlami di te"], ["database", "Database"], ["claude", "Claude"], ["google", "Google"], ["calendar", "Calendar"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
+const SEZIONI = [["generale", "Generale"], ["profilo", "Parlami di te"], ["database", "Database"], ["claude", "Claude"], ["voce", "Voce"], ["google", "Google"], ["calendar", "Calendar"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
 
 function Segreti({ group, nonServe = [] }: { group: string; nonServe?: string[] }) {
   return (
@@ -65,6 +65,14 @@ export default async function Setup() {
         <h2>Generale</h2>
         <p>Il nome dell&apos;assistente è <Wordmark name={nome} inline /> e non è modificabile. Il sottotitolo è facoltativo.</p>
         <Campi campi={campi("generale", { LEARNING_ENABLED: { options: [{ value: "on", label: "Proponi memorie da approvare" }, { value: "off", label: "Non proporre memorie automaticamente" }] } })} bloccato={bloccato} />
+      </section>
+
+      <section className="passo" id="voce">
+        <h2>Voce e dettatura</h2>
+        <p>Per timbri diversi su iPhone e Android, aggiungi <code>OPENAI_API_KEY</code> nelle variabili Vercel, fai Redeploy e attiva Audio AI. Claude continua a preparare le risposte; OpenAI genera la voce e trascrive le registrazioni, a consumo. La voce è generata dall’AI.</p>
+        <Segreti group="voce" />
+        <Campi campi={campi("voce", { WEB_AUDIO_PROVIDER: { options: [{ value: "off", label: "Solo servizi del dispositivo" }, { value: "openai", label: "Abilita voci e trascrizione OpenAI" }] } })} bloccato={bloccato} />
+        <p className="aiuto">In demo i servizi audio a pagamento sono disattivati. Safari richiede HTTPS e il permesso microfono. Dal prompt puoi scegliere dettatura del browser o registrazione da trascrivere.</p>
       </section>
 
       <section className="passo profile-section" id="profilo">

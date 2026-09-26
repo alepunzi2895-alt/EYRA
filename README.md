@@ -17,7 +17,7 @@ Il nome **EYRA** è fisso. Il significato di **EYE + RA** e dell’occhio cosmic
 - **Carica**: estratti conto, fatture (PDF, XML, p7m), contratti → analisi e proposte.
 - **Da approvare**: diff, conflitti, Applica/Rifiuta.
 - **Chat / WhatsApp**: stesso agente, legge PDF/immagini/Excel/XML, cerca normativa, capisce spagnolo e inglese, risponde in italiano.
-- **Chat con voce**: risposte in streaming, dettatura e lettura per frasi tramite Web Speech del browser. Cronologia completa su Turso, più conversazioni, ricerca e archiviazione. Nessuna chiave audio aggiuntiva per il web.
+- **Chat con voce**: risposte in streaming, dettatura e lettura per frasi con le voci del dispositivo; opzionalmente 13 timbri AI e registrazione MP4/WebM con OpenAI. Cronologia su Turso, più conversazioni, ricerca e archiviazione. L’audio AI richiede una chiave separata ed è spento per default.
 - **Foto di documenti**: prompt sotto l’occhio, fotocamera del telefono, allegati multipli con anteprima e rimozione, ottimizzazione delle foto grandi. Claude riceve le immagini per estrarre dati e proporre modifiche da approvare.
 - **Memoria**: `/memoria` mostra preferenze e correzioni approvate. L’agente propone nuove memorie durante il dialogo; ogni inserimento o rimozione richiede una patch approvata. Non è riaddestramento del modello.
 - **Attività e rinnovi**: `/attivita`, responsabile, prossimo passo, follow-up, stato, manutenzioni ricorrenti e preavvisi personalizzati.
