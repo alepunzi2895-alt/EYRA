@@ -33,7 +33,7 @@ function gruppi(rows: Scad[], oggi: string) {
   return Object.entries(g).filter(([, v]) => v.length);
 }
 
-export default async function Oggi() {
+export default async function Home() {
   let issue = await archiveIssue();
   let docs: Awaited<ReturnType<typeof loadAll>> = [];
   let patches: Awaited<ReturnType<typeof pendingPatches>> = [];
@@ -62,7 +62,7 @@ export default async function Oggi() {
         {issue && <ConnectionNotice message={issue} />}
         <header className="cockpit-head">
           <div>
-            <p className="eyebrow">cruscotto operativo</p>
+            <p className="eyebrow">Home · cruscotto operativo</p>
             <h1><Wordmark name={cfg.name} /></h1>
             <p className="sub">{new Date(oggi + "T12:00:00Z").toLocaleDateString("it-IT", { weekday: "long", day: "numeric", month: "long" })}</p>
           </div>

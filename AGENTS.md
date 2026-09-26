@@ -54,7 +54,7 @@ La logica del dominio (procedure, onboarding, regole) sta nei **markdown della K
 
 ## Convenzioni codice
 - TypeScript strict, niente dipendenze pesanti senza motivo.
-- UI: CSS in `app/globals.css` con variabili; font Bricolage Grotesque (UI) e Source Serif 4 (testi). Italiano, frasi brevi, verbi attivi.
+- UI: CSS in `app/globals.css` con variabili; font Montserrat ispirato al lettering «SEE WHAT OTHERS DON'T» del riferimento, con spaziatura ampia nei titoli e nella navigazione. Menu laterale chiuso per impostazione iniziale, apertura modale; pagina principale «Home», contenuti a larghezza fluida. Italiano, frasi brevi, verbi attivi.
 - Testi agente e directive in italiano.
 - Identità visiva EYRA: tema scuro, accenti verde smeraldo (`#10b981`, `#34d399`, `#6ee7b7`). L'avatar è un occhio 3D con geometrie in `lib/eye-model.ts`, visualizzato da `Eye3D` e animato da `eye-scene.ts`. `public/eyra.png` è solo il riferimento originale: non applicarlo a una sfera. Struttura nera lucida con riflessi discreti, iride smeraldo organica e luminosa: evitare un effetto cromato uniforme. Nessuno slogan nel modello. Vista ampliata in `/occhio`; `npm run model:export` rigenera `public/eyra-eye.glb`. Rispettare `prefers-reduced-motion`, sospendere il rendering fuori schermo e liberare le risorse GPU allo smontaggio.
 

@@ -4,6 +4,9 @@ import Wordmark from "@/app/components/Wordmark";
 import { APP_NAME, detail, DEFS, SECRETS, Key, Group } from "@/lib/config";
 import { dbKind } from "@/lib/db";
 import { Campi, Campo, Verifica, Copia } from "./Campi";
+import Profile from "./Profile";
+import { readProfile, type UserProfile } from "@/lib/profile";
+import { archiveIssue } from "@/lib/availability";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +15,7 @@ const DB_TESTO = {
   turso: "Collegato a Turso. Le impostazioni qui sotto si salvano nel database.",
   assente: "Nessun database: imposta TURSO_DATABASE_URL e TURSO_AUTH_TOKEN in .env, poi riavvia l'app.",
 };
-const SEZIONI = [["generale", "Generale"], ["database", "Database"], ["claude", "Claude"], ["google", "Google"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
+const SEZIONI = [["generale", "Generale"], ["profilo", "Parlami di te"], ["database", "Database"], ["claude", "Claude"], ["google", "Google"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
 
 function Segreti({ group, nonServe = [] }: { group: string; nonServe?: string[] }) {
   return (
@@ -40,6 +43,12 @@ export default async function Setup() {
   const etichetta = val("GMAIL_LABEL") || nome;
   const cartella = val("KB_ROOT_FOLDER_ID");
   const has = (k: string) => !!process.env[k];
+  let profileIssue = await archiveIssue();
+  let profile: UserProfile = { name: "", markdown: "" };
+  if (!profileIssue) {
+    try { profile = await readProfile(); }
+    catch { profileIssue = "Profilo non raggiungibile. Verifica il collegamento Google e il file di onboarding nell’archivio."; }
+  }
 
   return (
     <Shell>
@@ -55,6 +64,12 @@ export default async function Setup() {
         <h2>Generale</h2>
         <p>Il nome dell&apos;assistente è <Wordmark name={nome} inline /> e non è modificabile. Il sottotitolo è facoltativo.</p>
         <Campi campi={campi("generale")} bloccato={bloccato} />
+      </section>
+
+      <section className="passo profile-section" id="profilo">
+        <h2>Parlami di te</h2>
+        <p>Racconta chi sei, di cosa ti occupi e come preferisci essere aiutata o aiutato. <Wordmark name={nome} inline /> userà il profilo approvato nelle conversazioni sul sito, su WhatsApp e su Telegram.</p>
+        <Profile initial={profile} issue={profileIssue} />
       </section>
 
       <section className="passo" id="database">

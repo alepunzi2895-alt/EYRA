@@ -39,6 +39,7 @@ const ok = (c: unknown, m: string) => { console.log(`${c ? "✓" : "✗"} ${m}`)
   ok(srl.fm!.regime === "ordinario" && srl.fm!.forma === "srl", "set applicato, conflitto non sovrascritto");
   ok(srl.fm!.fonti_campi?.regime?.startsWith("commercialista"), "provenienza campo registrata");
   ok(!(await pt.pendingPatches()).length, "nessuna patch pendente");
+  await (await import("./profile-selftest")).testProfile();
 
   const xml = '<?xml version="1.0"?><p:FatturaElettronica><Numero>7</Numero><ImportoTotaleDocumento>100.00</ImportoTotaleDocumento></p:FatturaElettronica>';
   ok(summarize(extractXml(Buffer.concat([Buffer.from([0x30, 0x80]), Buffer.from(xml), Buffer.from([0, 0])]))!).includes("Totale documento: 100.00"), "fattura p7m");

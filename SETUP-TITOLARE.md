@@ -79,3 +79,10 @@ Su WhatsApp o in Chat: «Iniziamo l'onboarding». EYRA ti fa domande a blocchi e
 
 ## Accesso sviluppatore ai file (facoltativo)
 Drive → cartella EYRA → Condividi con lo sviluppatore come *Visualizzatore*. Revocabile quando vuoi.
+
+## Parlami di te
+In Impostazioni → Parlami di te puoi inserire il nome con cui vuoi essere chiamata o chiamato e un testo Markdown: contesto personale, attività, obiettivi, abitudini e preferenze di risposta. L’anteprima mostra la formattazione. Non inserire credenziali, token, PIN o IBAN completi.
+
+«Proponi aggiornamento del profilo» crea una patch da rivedere in Da approvare. Il profilo cambia solo dopo l’approvazione; sostituire valori esistenti richiede anche la conferma dei conflitti. Per cancellarlo, svuota i campi e approva la proposta. I dati sono salvati nei campi `nome_preferito` e `profilo_markdown` del file `00-router/onboarding.md` su Drive, con la normale provenienza e cronologia dell’archivio. Il contesto approvato viene letto a ogni nuova richiesta dell’assistente su tutti i canali.
+
+Prima di collegare Google puoi provare l’editor e l’anteprima, ma non salvare: lasciando la pagina il testo non salvato si perde. Nessun profilo viene inserito nel repository o nelle impostazioni Turso.

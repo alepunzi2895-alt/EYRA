@@ -6,7 +6,7 @@ export async function applica(code: string, force: boolean) {
   const p = await loadPatch(code);
   if (!p || p.stato !== "pending") return { error: "Patch non trovata o già gestita." };
   const r = await apply(p, force);
-  revalidatePath("/inbox"); revalidatePath("/");
+  revalidatePath("/inbox"); revalidatePath("/"); revalidatePath("/setup");
   return r.errors.length ? { error: r.errors.join("; ") } : { ok: `Applicata: ${r.files.length} file`, validazione: r.validazione };
 }
 

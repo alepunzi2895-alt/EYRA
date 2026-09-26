@@ -7,6 +7,8 @@ import { loadHistory, appendHistory } from "./history";
 import { isFattura, extractXml, summarize } from "./fattura";
 import { settings } from "./config";
 import { agentIssue } from "./availability";
+import { profileContext } from "./profile";
+import { split } from "./kb";
 
 
 export type Attachment = { name: string; mime: string; data: Buffer };
@@ -112,7 +114,9 @@ let sysCache: { at: number; text: string } | null = null;
 async function systemPrompt(nome: string): Promise<string> {
   if (sysCache && Date.now() - sysCache.at < 300_000) return sysCache.text.replaceAll("{{NOME}}", nome);
   const read = (p: string) => readText(p).catch(() => "");
-  const [agent, router, ingest, learn, onb] = await Promise.all([read("AGENT.md"), read("00-router/moduli.md"), read("directives/ingest-informazioni.md"), read("directives/apprendimento.md"), read("00-router/onboarding.md")]);
+  const [agent, router, ingest, learn, onboarding] = await Promise.all([read("AGENT.md"), read("00-router/moduli.md"), read("directives/ingest-informazioni.md"), read("directives/apprendimento.md"), read("00-router/onboarding.md")]);
+  // Le preferenze correnti vengono caricate a ogni richiesta, fuori dalla cache del prompt.
+  const onb = split(onboarding).body.split(/^## Storico\s*$/m)[0];
   const text = `${agent}
 
 # Router
@@ -174,11 +178,13 @@ export async function runAgent(opts: { key: string; who: string; channel: Channe
   const history = opts.noHistory ? [] : await loadHistory(opts.key);
   const ctx: Ctx = { userText: opts.text, channel: opts.channel, who: opts.who };
   const cfg = await settings();
+  const profile = await profileContext().catch(() => "");
   const system: Anthropic.TextBlockParam[] = [
     { type: "text", text: await systemPrompt(cfg.APP_NAME), cache_control: { type: "ephemeral" } },
     { type: "text", text: `Il tuo nome è ${cfg.APP_NAME}: presentati così anche se le istruzioni usano un altro nome. Oggi: ${today()} (Europe/Madrid). Canale: ${opts.channel}. Da: ${opts.who}.${CHANNEL_NOTE[opts.channel]}` },
   ];
   const messages: Anthropic.MessageParam[] = history.map((t) => ({ role: t.role, content: t.text }));
+  if (profile) system.push({ type: "text", text: profile });
   const userContent: Anthropic.ContentBlockParam[] = [...attachmentBlocks(opts.attachments ?? []), { type: "text", text: opts.text || "(allegato senza testo)" }];
   messages.push({ role: "user", content: userContent });
 

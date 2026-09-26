@@ -104,3 +104,8 @@ L'iride riprende il contrasto della foto: bordo esterno scuro, collaretto smeral
 > Precise edit of this transparent EYRA wordmark: remove ALL the broad green/gray glow, haze, shadows and fringes around the letters. Keep ONLY crisp thin ivory-white letter strokes on fully transparent alpha. Preserve the lettering geometry and spacing. The E is three separate horizontal bars, the Y is a thin fork, the R has its open futuristic bowl and diagonal leg, A has no crossbar. No redesign and no other text. Crop tightly around the four letters with only a small transparent margin. Wide horizontal logo lockup, about 6:1. Absolutely no glow or colored pixels surrounding the strokes, no background rectangle, no stars. Clean professional transparent PNG for a header.
 
 Le immagini sono state prodotte con lo strumento integrato, senza CLI né chiavi API aggiuntive. L'SVG è un asset nativo del progetto, non un font identificato nell'immagine.
+
+## Interfaccia e tipografia
+La navigazione parte chiusa e si apre con il pulsante Menu, come pannello modale laterale. Si chiude con Esc, il pulsante di chiusura, un clic sullo sfondo o la scelta di una pagina. La pagina principale si chiama Home. I contenuti occupano la larghezza disponibile; impostazioni e caricamenti usano colonne sui display ampi.
+
+Il font dell’interfaccia e dei testi è Montserrat, scelto come approssimazione geometrica del lettering «SEE WHAT OTHERS DON’T» dell’immagine originale. Non è un’identificazione certa del font nel raster. Titoli e navigazione usano pesi leggeri e spaziatura ampia; i testi lunghi conservano spaziatura naturale per la leggibilità. Il marchio continua a essere reso con Wordmark.

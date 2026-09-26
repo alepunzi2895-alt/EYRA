@@ -11,7 +11,7 @@ Il nome **EYRA** è fisso. Il significato di **EYE + RA** e dell’occhio cosmic
 ## Funzioni
 - **DNA di EYRA**: `/dna` esplora nove specialisti tramite una doppia elica 3D, con attività disponibili, conoscenze acquisibili e sviluppi futuri. Vista statica, controlli accessibili e dettagli in `docs/eyra-dna.md`.
 - **Occhio 3D**: avatar geometrico ispirato al riferimento, con iride smeraldo, lamelle metalliche, lente e satelliti animati. Trascina o usa le frecce per ruotarlo; Pausa e Centra controllano la vista. `/occhio` apre la vista ampliata e il download GLB. Rigenera il file con `npm run model:export` dopo modifiche a `lib/eye-model.ts`.
-- **Oggi**: scadenze 60 giorni, stato archivio.
+- **Home**: scadenze 60 giorni, stato archivio. Menu laterale chiuso all’apertura, layout a tutta larghezza e font Montserrat ispirato al riferimento visivo.
 - **Archivio**: navigazione cartelle, schede con fonte di ogni dato.
 - **Carica**: estratti conto, fatture (PDF, XML, p7m), contratti → analisi e proposte.
 - **Da approvare**: diff, conflitti, Applica/Rifiuta.

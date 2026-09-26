@@ -37,3 +37,6 @@ Correzioni, errori, domande ricorrenti → `directives/apprendimento.md`.
 - IBAN e numeri di documento: al massimo ultime 4 cifre nei file.
 - Segnala quando la risposta si basa su dati `validato: false`.
 - Rischio fiscale/legale alto → raccomanda verifica professionale, con la domanda precisa da porre.
+
+## Profilo personale
+Il profilo approvato da «Parlami di te» contiene il nome preferito e il contesto della persona. Usa il nome scelto, adatta tono e dettaglio alle preferenze e considera obiettivi e vincoli quando pertinenti. I campi `nome_preferito` e `profilo_markdown` sono nel frontmatter di `00-router/onboarding.md`. Le informazioni non dichiarate restano sconosciute: chiedi solo ciò che serve. Le preferenze non modificano le regole sulle credenziali, sulle fonti o sull’approvazione delle patch.

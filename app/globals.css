@@ -10,17 +10,42 @@
   --alga: #6ee7b7;
   --pannello: rgba(3,12,8,.88);
   --bordo-pannello: rgba(110,231,183,.20);
+  --f-testo: var(--f-ui);
   --r-s: 4px;
   --r-m: 10px;
 }
 * { box-sizing: border-box; }
+body:has(.navigation-drawer[open]) { overflow: hidden; }
+.app-bar { position: sticky; top: 0; z-index: 30; min-height: 72px; padding: 12px clamp(20px, 3vw, 64px); display: flex; align-items: center; gap: 28px; border-bottom: 1px solid var(--linea); background: rgba(3,12,8,.94); backdrop-filter: blur(16px); }
+.app-bar .menu-toggle, .navigation-drawer .menu-close { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: 44px; background: transparent; border: 1px solid var(--linea); color: var(--inchiostro); }
+.app-bar .menu-toggle { font-size: 11px; font-weight: 400; text-transform: uppercase; letter-spacing: .18em; }
+.app-brand { display: flex; align-items: center; }
+.app-brand .wordmark { width: 116px; }
+.app-location { margin-left: auto; font-size: 11px; text-transform: uppercase; letter-spacing: .24em; color: var(--fondale); }
+.navigation-drawer { position: fixed; inset: 0 auto 0 0; width: min(340px, calc(100vw - 28px)); max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; border-right: 1px solid var(--linea); color: var(--inchiostro); background: #06130e; box-shadow: 24px 0 80px #0008; }
+.navigation-drawer::backdrop { background: #010906b3; backdrop-filter: blur(5px); }
+.drawer-content { min-height: 100%; padding: 24px; display: flex; flex-direction: column; gap: 30px; }
+.drawer-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.drawer-heading h2 { margin: 0; font-size: 12px; font-weight: 400; letter-spacing: .24em; text-transform: uppercase; }
+.navigation-drawer .menu-close { width: 44px; padding: 0; font-size: 28px; font-weight: 300; }
+.drawer-brand .wordmark { width: 170px; }
+.drawer-brand p { color: var(--fondale); font-size: 12px; }
+.navigation-drawer nav { display: grid; gap: 6px; }
+.navigation-drawer nav a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 12px; font-size: 12px; font-weight: 400; letter-spacing: .12em; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid #284b3c66; }
+.navigation-drawer nav a:hover, .navigation-drawer nav a[aria-current=page] { color: var(--alga); background: #103023; }
+.navigation-drawer nav a > span:last-child:not(:first-child) { color: var(--alga); }
+.navigation-drawer nav a:last-child { margin-top: 20px; }
+.skip-link { position: fixed; top: -100px; left: 20px; z-index: 50; padding: 12px; background: var(--carta); color: var(--inchiostro); }
+.skip-link:focus { top: 12px; }
+@media (max-width: 600px) { .app-bar { gap: 16px; min-height: 64px; padding: 10px 16px; } .app-location { font-size: 9px; letter-spacing: .12em; } .app-bar .menu-toggle { padding: 8px 10px; } .menu-toggle span { display: none; } .app-brand .wordmark { width: 100px; } }
+@media (prefers-reduced-motion: no-preference) { .navigation-drawer[open] { animation: drawer-enter .2s ease-out; } @keyframes drawer-enter { from { transform: translateX(-100%); } to { transform: translateX(0); } } }
 html, body { margin: 0; background: var(--sale); color: var(--inchiostro); }
 body { font-family: var(--f-ui), system-ui, sans-serif; font-size: 15px; line-height: 1.5; min-height: 100svh; display: flow-root; background: linear-gradient(rgba(2,8,6,.30), rgba(2,8,6,.48)), url('/eyra-cosmos.png') center / cover fixed; }
 a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--linea); }
 a:hover { text-decoration-color: var(--inchiostro); }
 :focus-visible { outline: 2px solid var(--boa); outline-offset: 2px; }
 
-.shell { display: grid; grid-template-columns: 200px minmax(0, 1fr); min-height: 100vh; }
+.shell { min-height: 100svh; }
 .rail { padding: 28px 20px; border-right: 1px solid var(--linea); position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 28px; }
 .brand { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; line-height: 1.1; }
 .wordmark { display: inline-block; width: 190px; max-width: 100%; vertical-align: middle; }
@@ -34,15 +59,17 @@ button .wordmark-inline img { filter: brightness(0); }
 .rail nav a { text-decoration: none; padding: 7px 10px; border-radius: var(--r-s); font-weight: 500; display: flex; justify-content: space-between; }
 .rail nav a:hover { background: rgba(110,231,183,.08); }
 .badge { background: var(--boa); color: #03110b; border-radius: 999px; font-size: 12px; padding: 0 8px; font-weight: 700; }
-main { padding: 36px 44px 80px; max-width: 1100px; width: 100%; min-width: 0; }
-h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px; line-height: 1.1; }
-h2 { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 36px 0 12px; }
+main { padding: 32px clamp(20px, 3vw, 64px) 64px; max-width: none; width: 100%; min-width: 0; }
+h1 { font-size: 32px; font-weight: 500; letter-spacing: .08em; margin: 0 0 6px; line-height: 1.1; }
+h2 { font-size: 18px; font-weight: 500; letter-spacing: .07em; margin: 36px 0 12px; }
 .sub { color: var(--fondale); margin: 0 0 28px; }
 .connection-notice { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 18px 22px; margin: 0 0 24px; border: 1px solid var(--linea); border-left: 3px solid var(--boa); border-radius: var(--r-m); background: var(--pannello); }
 .connection-notice > div { flex: 1 1 300px; }
 .connection-notice strong { color: var(--alga); }
 .connection-notice p { margin: 5px 0 0; color: var(--fondale); }
 .upload-fields { border: 0; padding: 0; margin: 0; min-width: 0; }
+.upload-fields .campo { max-width: none; }
+@media (min-width: 1000px) { .upload-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 28px; } .upload-fields .campo { margin: 0; } .upload-fields .campo:nth-child(3), .upload-fields .campo:nth-child(4) { grid-column: 1 / -1; } .upload-fields > button { justify-self: start; } }
 
 /* cockpit */
 body:has(.cockpit) { background: #060f0c; }
@@ -54,14 +81,14 @@ body:has(.cockpit) .setup-link { color: #9ebcaf; }
 body:has(.cockpit) .rail nav a:hover { background: rgba(110,231,183,.08); }
 body:has(.cockpit) .btn.sec { color: #ecfdf5; border-color: rgba(110,231,183,.54); background: rgba(255,255,255,.035); }
 body:has(.cockpit) .btn.sec:hover { border-color: #10b981; }
-body:has(.cockpit) main { max-width: 1260px; background:
+body:has(.cockpit) main { max-width: none; background:
   radial-gradient(circle at 60% 8%, rgba(16,185,129,.14), transparent 30%),
   linear-gradient(180deg, rgba(10,27,20,.92), #060f0c 380px); }
-.cockpit { display: grid; gap: 22px; max-width: 1180px; min-width: 0; }
+.cockpit { display: grid; gap: 26px; width: 100%; min-width: 0; }
 .cockpit-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
-.eyebrow, .panel-label { margin: 0 0 6px; color: #34d399; text-transform: uppercase; font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+.eyebrow, .panel-label { margin: 0 0 6px; color: #34d399; text-transform: uppercase; font-size: 11px; font-weight: 500; letter-spacing: .26em; }
 .quick-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-.jarvis-grid { min-height: 430px; display: grid; grid-template-columns: minmax(180px, 1fr) minmax(340px, 520px) minmax(180px, 1fr); gap: 18px; align-items: stretch; border-radius: 8px; padding: 20px; position: relative; overflow: hidden; color: #ecfdf5; background: linear-gradient(rgba(2,9,7,.24), rgba(2,9,7,.48)), url('/eyra-cosmos.png') center center / cover; box-shadow: inset 0 0 0 1px rgba(110,231,183,.18), 0 24px 68px rgba(0,0,0,.34); }
+.jarvis-grid { min-height: 430px; display: grid; grid-template-columns: minmax(200px, 1fr) minmax(340px, 1.7fr) minmax(200px, 1fr); gap: 18px; align-items: stretch; border-radius: 8px; padding: 20px; position: relative; overflow: hidden; color: #ecfdf5; background: linear-gradient(rgba(2,9,7,.24), rgba(2,9,7,.48)), url('/eyra-cosmos.png') center center / cover; box-shadow: inset 0 0 0 1px rgba(110,231,183,.18), 0 24px 68px rgba(0,0,0,.34); }
 .radar-panel { position: relative; z-index: 1; align-self: center; border: 1px solid rgba(110,231,183,.18); background: rgba(5,18,12,.68); border-radius: 8px; padding: 18px; min-height: 210px; display: flex; flex-direction: column; justify-content: center; box-shadow: inset 0 0 24px rgba(52,211,153,.09); }
 .radar-panel strong { display: block; font-size: clamp(44px, 6vw, 78px); line-height: .9; letter-spacing: -.06em; }
 .radar-panel span { color: rgba(236,253,245,.72); }
@@ -145,7 +172,7 @@ body:has(.cockpit) main { max-width: 1260px; background:
 
 /* documento */
 .doc { display: grid; grid-template-columns: 1fr 280px; gap: 40px; align-items: start; }
-.prosa { font-family: var(--f-testo), Georgia, serif; font-size: 17px; line-height: 1.7; max-width: 68ch; }
+.prosa { font-family: var(--f-testo), sans-serif; font-size: 17px; line-height: 1.7; max-width: 68ch; }
 .prosa h2 { font-family: var(--f-ui), sans-serif; }
 .prosa table { border-collapse: collapse; font-family: var(--f-ui), sans-serif; font-size: 14px; display: block; overflow-x: auto; }
 .prosa td, .prosa th { border-bottom: 1px solid var(--linea); padding: 6px 12px 6px 0; text-align: left; }
@@ -279,7 +306,7 @@ body:has(.eye-studio) { background: #030907; color: #ecfdf5; }
 /* impostazioni */
 .indice { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: -12px 0 24px; font-size: 14px; }
 .indice a { color: var(--fondale); }
-.passo { scroll-margin-top: 16px; }
+.passo { scroll-margin-top: 96px; }
 .passo h2 { display: flex; align-items: center; gap: 10px; }
 .passo .check { margin: 14px 0; }
 .passo .azioni { margin: 14px 0; align-items: flex-start; }
@@ -308,7 +335,7 @@ a.btn { text-decoration: none; display: inline-block; }
 .cartelle a:hover { background: #103023; color: #a7f3d0; }
 .cartelle a > span { min-width: 0; }
 .cartelle em { flex-shrink: 0; max-width: 45%; text-align: right; }
-.upload-form { max-width: 650px; padding: 24px; border-radius: var(--r-m); }
+.upload-form { width: 100%; max-width: none; padding: 24px; border-radius: var(--r-m); }
 .campo input, .campo select, .campo textarea, .composer textarea { min-width: 0; width: 100%; background: #07150f; }
 input::placeholder, textarea::placeholder { color: #8baa9b; opacity: 1; }
 input[type=file] { max-width: 100%; color: var(--fondale); font: inherit; }
@@ -328,7 +355,7 @@ input[type=file]::file-selector-button:hover { background: #103829; border-color
 .stato.ko { background: #301b17; }
 
 /* Superfici scure: stesso cielo e stessi accenti del login. */
-body:has(.settings-page) main { max-width: 1260px; }
+body:has(.settings-page) main { max-width: none; }
 body:has(.settings-page) .badge { color: #03110b; }
 body:has(.settings-page) .rail nav a:hover { background: rgba(110,231,183,.08); }
 body:has(.settings-page) .setup-link { color: #6ee7b7; }
@@ -338,6 +365,18 @@ body:has(.settings-page) .setup-link { color: #6ee7b7; }
 .settings-page .indice a:hover { border-color: var(--boa); color: var(--inchiostro); }
 .settings-page .passo { padding: 24px; border: 1px solid rgba(110,231,183,.20); background: rgba(3,12,8,.88); box-shadow: 0 12px 36px #0003; backdrop-filter: blur(14px); }
 .settings-page .passo:target { border-color: var(--boa); }
+.profile-section { grid-column: 1 / -1; }
+.passo .profile-form { display: block; }
+.profile-editor { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; margin: 20px 0; }
+.profile-editor .campo { max-width: none; margin: 0; }
+.profile-editor textarea { min-height: 380px; resize: vertical; font-family: ui-monospace, monospace; font-size: 14px; line-height: 1.65; }
+.profile-preview { min-width: 0; overflow-wrap: anywhere; padding: 20px; border: 1px solid var(--linea); border-radius: var(--r-m); background: #07150f; }
+.profile-preview h3 { margin-top: 0; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .2em; color: var(--alga); }
+.profile-preview table { display: block; overflow-x: auto; }
+.profile-preview pre { white-space: pre-wrap; }
+.profile-form details { margin-top: 16px; }
+@media (min-width: 1280px) { .settings-page { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; } .settings-page > h1, .settings-page > .sub, .settings-page > .indice, .settings-page > #generale { grid-column: 1 / -1; } .settings-page > .sub, .settings-page > .indice, .settings-page .passo { margin-bottom: 0; } .settings-page .campo { max-width: none; } }
+@media (max-width: 760px) { .profile-editor { grid-template-columns: minmax(0, 1fr); } }
 .settings-page .passo h2 { color: #d1fae5; }
 .settings-page .passo p { overflow-wrap: anywhere; }
 .settings-page .campo input, .settings-page .campo select, .settings-page .campo textarea { min-width: 0; width: 100%; background: #07150f; }
@@ -361,7 +400,7 @@ body:has(.settings-page) .setup-link { color: #6ee7b7; }
 
 /* DNA — atlante delle competenze */
 body:has(.dna-page) { background: #040c09; }
-body:has(.dna-page) main { max-width: 1600px; padding: 42px clamp(20px, 3.2vw, 54px) 42px; }
+body:has(.dna-page) main { max-width: none; padding: 42px clamp(20px, 3.2vw, 54px) 42px; }
 body:has(.dna-page) .rail nav a[href='/dna'] { color: var(--alga); background: rgba(110,231,183,.09); box-shadow: inset 2px 0 var(--alga); }
 .dna-page { --dna-border: rgba(110,231,183,.19); --dna-muted: #a3bfb2; }
 .dna-page button { -webkit-tap-highlight-color: transparent; }
@@ -414,7 +453,7 @@ body:has(.dna-page) .rail nav a[href='/dna'] { color: var(--alga); background: r
 .dna-detail { min-width: 0; border-left: 1px solid var(--dna-border); padding: 30px 0 26px 30px; }
 .dna-detail-heading h2 { font-size: clamp(26px, 2.6vw, 39px); letter-spacing: -.045em; font-weight: 500; line-height: 1.12; margin: 12px 0; overflow-wrap: anywhere; }
 .dna-subject { font-size: 11px; color: var(--alga); margin: 0; }
-.dna-description { font-family: var(--f-testo), Georgia, serif; font-size: 18px; line-height: 1.55; color: #c9ded2; margin: 23px 0 26px; }
+.dna-description { font-family: var(--f-testo), sans-serif; font-size: 18px; line-height: 1.55; color: #c9ded2; margin: 23px 0 26px; }
 .dna-views { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 0 13px; border-bottom: 1px solid var(--dna-border); }
 .dna-page .dna-views button { border: 1px solid transparent; background: transparent; color: var(--dna-muted); border-radius: 3px; padding: 7px 8px; min-height: 36px; font-size: 11px; font-weight: 500; }
 .dna-page .dna-views button[aria-pressed='true'] { color: var(--alga); background: #102b20; border-color: #6ee7b734; }
@@ -429,14 +468,14 @@ body:has(.dna-page) .rail nav a[href='/dna'] { color: var(--alga); background: r
 .dna-documents p { font-size: 12px; line-height: 1.7; color: #c1d6c9; margin: 0; }
 .dna-example { background: linear-gradient(110deg,#10291e,#091811); border-left: 2px solid #5dab88; padding: 16px 18px; margin: 0 0 24px; }
 .dna-example figcaption { font-size: 10px; color: var(--alga); text-transform: uppercase; letter-spacing: .1em; }
-.dna-example blockquote { font-family: var(--f-testo), Georgia, serif; font-size: 15px; line-height: 1.7; margin: 9px 0 0; padding: 0; border: none; color: #d3e7d9; }
+.dna-example blockquote { font-family: var(--f-testo), sans-serif; font-size: 15px; line-height: 1.7; margin: 9px 0 0; padding: 0; border: none; color: #d3e7d9; }
 .dna-connections > div { display: flex; flex-wrap: wrap; gap: 6px 14px; }
 .dna-page .dna-connections button { background: transparent; color: #c9e8d8; border: none; padding: 6px 0; font-size: 12px; font-weight: 400; min-height: 36px; }
 .dna-connections button > span { color: var(--alga); margin-left: 7px; }
 .dna-page .dna-connections button:hover { color: var(--alga); background: transparent; }
 .dna-learning { display: grid; grid-template-columns: 1fr 1.15fr; gap: 48px; margin: 50px 0 34px; }
 .dna-learning h2 { font-size: clamp(24px, 2.5vw, 34px); font-weight: 400; line-height: 1.22; letter-spacing: -.035em; margin: 15px 0; }
-.dna-learning h2 em { color: var(--alga); font-family: var(--f-testo), Georgia, serif; font-weight: 400; }
+.dna-learning h2 em { color: var(--alga); font-family: var(--f-testo), sans-serif; font-weight: 400; }
 .dna-learning > div > p:not(.eyebrow) { margin: 0 0 13px; color: var(--dna-muted); font-size: 13px; line-height: 1.75; }
 .dna-links { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px; font-size: 12px; color: #daf5e7; }
 .dna-availability { font-size: 11px; color: var(--dna-muted); max-width: 960px; line-height: 1.8; }

@@ -2,7 +2,20 @@
 import { revalidatePath } from "next/cache";
 import { save, settings, KEYS, Key } from "@/lib/config";
 import { db, dbKind } from "@/lib/db";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
+import { authToken } from "@/lib/auth";
+
+export async function proponiProfilo(fd: FormData): Promise<{ code?: string; diff?: string; error?: string }> {
+  const cookie = (await cookies()).get("auth")?.value;
+  if (!cookie || cookie !== await authToken()) return { error: "Sessione scaduta. Accedi di nuovo." };
+  try {
+    const issue = await (await import("@/lib/availability")).archiveIssue();
+    if (issue) return { error: issue };
+    const result = await (await import("@/lib/profile")).proposeProfile({ name: String(fd.get("name") ?? ""), markdown: String(fd.get("markdown") ?? "") });
+    revalidatePath("/inbox");
+    return result;
+  } catch (e) { return { error: e instanceof Error ? e.message : "Impossibile preparare la proposta. Riprova." }; }
+}
 
 export type Esito = { ok?: string; error?: string; errors?: Partial<Record<Key, string>> };
 
