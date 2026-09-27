@@ -632,16 +632,9 @@ body:has(.dna-page) .rail nav a[href='/dna'] { color: var(--alga); background: r
 .attention-calm { --planet-color: #34d399; }
 .attention-watch { --planet-color: #fbbf24; }
 .attention-urgent { --planet-color: #fb7185; }
-.orbit-paused .planet-orbit, .orbit-paused .planet-upright, .entity-universe:focus-within .planet-orbit, .entity-universe:focus-within .planet-upright, .entity-universe:hover .planet-orbit, .entity-universe:hover .planet-upright { animation-play-state: paused; }
+.orbit-paused .planet-orbit, .orbit-paused .planet-upright { animation-play-state: paused; }
 .orbit-caption { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; gap: 12px; color: #9bb8ae; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
-.orbit-caption button { border: 0; background: transparent; color: #b3cfc2; font: inherit; padding: 10px; }
-.planet-detail { position: absolute; z-index: 5; left: 50%; top: 48%; transform: translate(-50%,-50%); width: min(440px,calc(100% - 32px)); max-height: 80%; overflow: auto; padding: 26px; border: 1px solid #6ee7b755; border-radius: 18px; background: #04150ef2; backdrop-filter: blur(24px); box-shadow: 0 24px 80px #000a; font-size: 13px; }
-.planet-detail h2 { margin: 12px 20px 12px 0; font-size: 20px; }
-.planet-detail small { color: #a9bfb5; font-size: 11px; }
-.planet-detail > div { display: flex; gap: 20px; margin-top: 20px; }
 .planet-status { color: var(--planet-color); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
-.planet-volume { font-size: 24px; }
-.planet-close { position: absolute; right: 8px; top: 8px; width: 44px; height: 44px; background: transparent; color: #c3e5d7; font-size: 25px; border: 0; }
 .cosmos-notice { text-align: center; color: #a7bcaf; font-size: 11px; margin: 15px 20px 0; }
 .cosmos-home .home-prompt { position: sticky; bottom: 0; z-index: 12; width: 100%; max-width: none; margin: auto 0 0; padding: 12px clamp(12px,3vw,50px) max(14px,env(safe-area-inset-bottom)); background: linear-gradient(0deg,#030b09e8,#030b0955); }
 .cosmos-home .chat-inline { gap: 6px; }
@@ -691,7 +684,6 @@ body:has(.dna-page) .rail nav a[href='/dna'] { color: var(--alga); background: r
   .cosmos-home .composer-minimal > .prompt-send { grid-column: 3; grid-row: 1; }
   .entity-settings-grid { grid-template-columns: 1fr; }
   .entity-fields input, .entity-fields textarea { font-size: 16px; }
-  .planet-detail { max-height: 92%; }
 }
 /* Keep orbit labels and eye controls clear at short and narrow viewport sizes. */
 .cosmos-home { background: linear-gradient(180deg,#02090722,#02090744),url('/eyra-cosmos.png') center / cover; }
@@ -707,4 +699,61 @@ body:has(.dna-page) .rail nav a[href='/dna'] { color: var(--alga); background: r
   .entity-universe { min-height: 380px; }
   .orbit-system { --flatten: .9; --unflatten: 1.111111; top: 43%; }
   .cosmos-home .composer-minimal textarea { resize: none; }
+}
+/* Selection travels from the visible planet into the pupil before navigation. */
+a.planet { text-decoration: none; }
+.planet-selected .planet { opacity: 0; }
+.absorbed-planet { position: absolute; z-index: 8; pointer-events: none; animation: absorb-planet .85s cubic-bezier(.45,.05,.6,1) both; }
+.eye-absorbing .universe-eye { animation: eye-receive .85s ease-out both; }
+.absorption-status { position: absolute; bottom: 28px; left: 0; right: 0; text-align: center; color: #bcebd7; font-size: 12px; z-index: 9; }
+.absorption-status a { margin-left: 10px; font-size: 10px; }
+@keyframes absorb-planet { 0% { transform: translate(0,0) scale(1); opacity: 1; } 60% { opacity: 1; } 100% { transform: translate(var(--flight-x),var(--flight-y)) scale(.02); opacity: 0; } }
+@keyframes eye-receive { 0%,100% { filter: brightness(1); } 75% { filter: brightness(1.45) drop-shadow(0 0 20px #34d39955); } }
+@media (prefers-reduced-motion: reduce) { .absorbed-planet, .eye-absorbing .universe-eye { animation: none; } }
+.entity-page { max-width: 1320px; margin: 0 auto; }
+.entity-back { color: #a5cbb9; font-size: 12px; }
+.entity-heading { display: flex; align-items: center; gap: 26px; margin: 36px 0; }
+.entity-emblem { width: 76px; height: 76px; }
+.entity-heading h1 { font-size: clamp(24px,3vw,40px); letter-spacing: .03em; overflow-wrap: anywhere; }
+.entity-heading p { max-width: 760px; color: #a7c5b7; }
+.entity-eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; }
+.entity-metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border-block: 1px solid #6ee7b72b; padding: 28px 0; gap: 28px; }
+.entity-metrics > div { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.entity-metrics span { font-size: 11px; color: #9dbdae; }
+.entity-metrics strong { font-size: clamp(18px,2.4vw,30px); font-weight: 400; overflow-wrap: anywhere; }
+.entity-metrics small { color: #9dbdae; font-size: 11px; }
+.entity-trend { margin: 36px 0; }
+.entity-section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
+.entity-section-title h2 { margin: 0; }
+.entity-section-title a { font-size: 12px; color: #a7d9c0; }
+.entity-trend > p { font-size: 12px; color: #a6c4b5; }
+.trend-scroll { overflow-x: auto; }
+.trend-chart { height: 255px; display: grid; grid-template-columns: repeat(12,minmax(20px,1fr)); gap: clamp(5px,1.5vw,22px); padding-top: 22px; min-width: 320px; }
+.trend-column { display: flex; flex-direction: column; gap: 12px; text-align: center; font-size: 10px; color: #a0bfaf; }
+.trend-track { height: 200px; display: flex; align-items: flex-end; border-bottom: 1px solid #6ee7b766; background: linear-gradient(0deg,#34d39907,transparent); }
+.trend-bar { width: 100%; min-height: 2px; background: linear-gradient(0deg,#08765a,#6ee7b7); border-radius: 4px 4px 0 0; }
+.trend-missing { width: 100%; height: 100%; border: 1px dashed #a1b9af33; border-bottom: 0; }
+.entity-empty, .entity-discrepancy { padding: 18px 0; }
+.trend-values { margin-top: 20px; font-size: 12px; }
+.trend-values summary, .monthly-editor summary { cursor: pointer; min-height: 44px; padding: 12px 0; color: #b7e3ce; }
+.trend-values table { width: min(100%,650px); margin-top: 12px; border-collapse: collapse; }
+.trend-values th, .trend-values td { border-bottom: 1px solid #6ee7b725; padding: 12px; text-align: left; }
+.trend-values caption { text-align: left; margin-bottom: 10px; }
+.entity-records { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 36px; }
+.entity-records p { font-size: 13px; color: #9dbdae; }
+.entity-records ul { padding: 0; list-style: none; }
+.entity-records li { padding: 16px 0; border-bottom: 1px solid #6ee7b726; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; }
+.entity-records li small { flex-basis: 100%; color: #91b4a2; }
+.entity-records time { color: #8ec4aa; }
+.entity-loading { min-height: 60svh; display: grid; place-items: center; color: #a5cbb9; }
+.monthly-editor { font-size: 12px; }
+.monthly-editor > div { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.monthly-editor p { color: #a7c5b7; }
+@media (max-width: 600px) {
+ .entity-heading { align-items: flex-start; gap: 16px; margin: 24px 0; }
+ .entity-emblem { width: 45px; height: 45px; }
+ .entity-metrics { grid-template-columns: 1fr; gap: 24px; }
+ .entity-records { grid-template-columns: 1fr; gap: 12px; }
+ .entity-trend { margin-top: 26px; }
+ .trend-chart { min-width: 360px; }
 }

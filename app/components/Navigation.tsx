@@ -26,7 +26,7 @@ export default function Navigation({ name, tagline, inbox }: { name: string; tag
     { href: "/setup", label: "Impostazioni" },
   ];
   const active = (href: string) => href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/") || (href === "/cartella" && pathname.startsWith("/f/"));
-  const current = links.find((link) => active(link.href))?.label;
+  const current = pathname.startsWith("/entita/") ? "Andamento entità" : links.find((link) => active(link.href))?.label;
 
   return <>
     <a href="#contenuto" className="skip-link">Vai al contenuto</a>

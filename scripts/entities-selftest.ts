@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { emptyEntities, parseEntities, entityPlanets } from "../lib/entities";
+import { emptyEntities, parseEntities, entityPlanets, entityTrend, demoEntities } from "../lib/entities";
 import type { Doc, Scad } from "../lib/kb";
 
 export function testEntities() {
@@ -32,5 +32,17 @@ export function testEntities() {
   assert.equal(planets[2].size, 36);
   config.entities[0].volume = 0;
   assert.equal(evaluate([doc], [])[0].size, 24);
+  const monthly = Array<number | null>(12).fill(null); monthly[0] = 0; monthly[2] = 100;
+  const extended = structuredClone(config); extended.entities[0].monthly = monthly;
+  assert.deepEqual(parseEntities(JSON.stringify(extended)).entities[0].monthly, monthly);
+  const partial = entityTrend(extended.entities[0]);
+  assert.equal(partial.count, 2); assert.equal(partial.total, 100); assert.equal(partial.complete, false);
+  assert.equal(partial.monthly[1], null);
+  assert.equal(entityTrend(config.entities[0]).total, null);
+  assert.equal(entityTrend({ ...config.entities[0], monthly: Array(12).fill(0) }).complete, true);
+  for (const invalid of [[1, 2], Array(12).fill(-1), Array(12).fill("5")]) {
+    assert.throws(() => parseEntities(JSON.stringify({ ...config, entities: config.entities.map((e, i) => i === 0 ? { ...e, monthly: invalid } : e) })));
+  }
+  for (const demo of demoEntities().entities) assert.equal(entityTrend(demo).total, demo.volume);
   console.log("✓ pianeti: centri distinti, volumi confrontabili, dati mancanti, scadenze e stato archivio");
 }

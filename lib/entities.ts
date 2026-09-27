@@ -1,6 +1,6 @@
 import type { Doc, Scad } from "./kb";
 
-export type CostCenter = { id: string; name: string; reference: string; volume: number | null; notes: string };
+export type CostCenter = { id: string; name: string; reference: string; volume: number | null; notes: string; monthly?: (number | null)[] };
 export type EntityConfig = { year: number; entities: CostCenter[] };
 export type Planet = CostCenter & { size: number; attention: "unknown" | "calm" | "watch" | "urgent"; reason: string; documents: number };
 
@@ -15,7 +15,8 @@ export function parseEntities(raw: string): EntityConfig {
     ids.add(e.id);
     if (typeof e.name !== "string" || !e.name.trim() || e.name.length > 90 || typeof e.reference !== "string" || !/^[a-zA-Z0-9_-]{0,100}$/.test(e.reference) || typeof e.notes !== "string" || e.notes.length > 500) throw new Error("Controlla nomi, ID archivio e peculiarità (massimo 500 caratteri).");
     if (e.volume !== null && (typeof e.volume !== "number" || !Number.isFinite(e.volume) || e.volume < 0 || e.volume > 1e15)) throw new Error("Il volume annuo deve essere un importo positivo o zero, oppure vuoto.");
-    return { id: e.id, name: e.name.trim(), reference: e.reference, volume: e.volume, notes: e.notes.trim() };
+    if (e.monthly !== undefined && (!Array.isArray(e.monthly) || e.monthly.length !== 12 || e.monthly.some(v => v !== null && (typeof v !== "number" || !Number.isFinite(v) || v < 0 || v > 1e15)))) throw new Error("Indica dodici mesi: importi non negativi oppure campi vuoti.");
+    return { id: e.id, name: e.name.trim(), reference: e.reference, volume: e.volume, notes: e.notes.trim(), ...(e.monthly ? { monthly: [...e.monthly] } : {}) };
   });
   const references = entities.map(e => e.reference).filter(Boolean);
   if (new Set(references).size !== references.length) throw new Error("Ogni centro deve avere un ID archivio distinto.");
@@ -27,7 +28,18 @@ export function emptyEntities(year = new Date().getFullYear()): EntityConfig {
 }
 
 export function demoEntities(year = new Date().getFullYear()): EntityConfig {
-  return { year, entities: ["Attività Spagna", "Attività Italia", "Impresa demo", "Progetto demo"].map((name, i) => ({ id: `centro-${i + 1}`, name, reference: "", volume: [120000, 70000, 240000, 45000][i], notes: "Dati dimostrativi. Configura i valori reali nelle Impostazioni dell’ambiente di produzione." })) };
+  return { year, entities: ["Attività Spagna", "Attività Italia", "Impresa demo", "Progetto demo"].map((name, i) => {
+    const volume = [120000, 70000, 240000, 45000][i];
+    return { id: `centro-${i + 1}`, name, reference: "", volume, monthly: [7, 6, 8, 8, 9, 10, 11, 9, 8, 9, 8, 7].map(weight => volume * weight / 100), notes: "Dati dimostrativi. Configura i valori reali nelle Impostazioni dell’ambiente di produzione." };
+  }) };
+}
+
+/** Missing months remain unknown, including in totals and year-to-date comparisons. */
+export function entityTrend(entity: CostCenter) {
+  const monthly = entity.monthly ?? Array<number | null>(12).fill(null);
+  const available = monthly.filter((v): v is number => v !== null);
+  const total = available.length ? available.reduce((sum, value) => sum + value, 0) : null;
+  return { monthly, count: available.length, total, max: Math.max(0, ...available), complete: available.length === 12 };
 }
 
 /** Compare EUR volumes for a shared year. Missing values never imply zero or a healthy status. */

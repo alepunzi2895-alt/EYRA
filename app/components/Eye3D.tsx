@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { mountEye } from "./eye-scene";
 
-export default function Eye3D({ name, expanded = false }: { name: string; expanded?: boolean }) {
+export default function Eye3D({ name, expanded = false, controls = true }: { name: string; expanded?: boolean; controls?: boolean }) {
   const host = useRef<HTMLDivElement>(null);
   const controller = useRef<ReturnType<typeof mountEye> | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
@@ -36,7 +36,7 @@ export default function Eye3D({ name, expanded = false }: { name: string; expand
       {status === "loading" ? "L’occhio prende forma…" : "La vista 3D non è disponibile in questo browser."}
       {status === "error" && <a href="/eyra-eye.glb" download>Scarica il modello 3D</a>}
     </div>}
-    {status === "ready" && <div className="eye3d-controls" aria-label="Controlli occhio">
+    {status === "ready" && controls && <div className="eye3d-controls" aria-label="Controlli occhio">
       <span className="eye3d-hint">trascina per esplorare</span>
       <button type="button" onClick={toggle} aria-pressed={paused}>{paused ? "Riprendi" : "Pausa"}</button>
       <button type="button" onClick={() => controller.current?.reset()}>Centra</button>

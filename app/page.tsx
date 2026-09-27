@@ -3,13 +3,14 @@ import { headers } from "next/headers";
 import { Shell } from "@/app/components/Shell";
 import { loadAll, scadenze, today, addDays } from "@/lib/kb";
 import { pendingPatches } from "@/lib/patch";
-import { brand, setting } from "@/lib/config";
+import { brand } from "@/lib/config";
 import Wordmark from "@/app/components/Wordmark";
 import { archiveIssue, chatIssue } from "@/lib/availability";
 import HomeContext from "@/app/components/HomeContext";
 import EntityOrbit from "@/app/components/EntityOrbit";
-import { parseEntities, emptyEntities, demoEntities, entityPlanets } from "@/lib/entities";
+import { entityPlanets } from "@/lib/entities";
 import Chat from "@/app/chat/Chat";
+import { entityConfig } from "@/lib/entity-config";
 
 export const dynamic = "force-dynamic";
 
@@ -29,10 +30,7 @@ export default async function Home() {
     const city = requestHeaders.get("x-vercel-ip-city");
     if (city) { try { approximateCity = decodeURIComponent(city).slice(0, 120); } catch { /* unavailable */ } }
   }
-  const demo = !!process.env.KB_LOCAL_DIR;
-  let entities = demo ? demoEntities() : emptyEntities();
-  let configIssue = "";
-  if (!demo) { try { const raw = await setting("HOME_ENTITIES"); if (raw) entities = parseEntities(raw); } catch { configIssue = "Configurazione dei pianeti non disponibile. Verifica le Impostazioni."; } }
+  const { config: entities, demo, issue: configIssue } = await entityConfig();
   const date = today();
   const planets = entityPlanets(entities, docs, scadenze(docs, 104, addDays(date, -90)), !issue, date);
   return <Shell inbox={patches.length}>
