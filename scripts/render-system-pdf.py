@@ -259,8 +259,9 @@ label('Aggiornare il manuale', [
     'Aggiornare docs/system/catalog.json quando cambia una funzione, un limite, un ingresso o una responsabilità.',
     'Aggiornare lib/dna.ts quando cambia una capacità specialistica; aggiungere commenti mirati alle API pubbliche quando utili.',
     'Eseguire npm run docs:update dopo la revisione, poi npm run check. Il controllo rileva cambiamenti delle sorgenti, non dimostra la correttezza semantica della prosa.',
-    'Generare localmente con npm run docs:pdf, oppure scaricare PDF e JSON dagli artifact del workflow Documentazione sistema su GitHub.',
+    'Rigenerare sempre con npm run docs:pdf prima di concludere ogni sviluppo. Dopo il commit rigenerare l’edizione finale o verificare l’artifact riuscito sullo stesso commit.',
     'Su GitHub, ogni push e pull request genera una nuova edizione se i controlli passano. Nessun segreto applicativo è necessario e nessuna API AI viene chiamata.',
+    'Per ogni deploy verificare il PDF del codice distribuito. Un redeploy senza push richiede una nuova generazione locale o il workflow manuale sul relativo ref. Riportare revisione e posizione del PDF; un errore lascia incompleta la documentazione.',
 ])
 label('Provenienza dell’edizione', f"Commit: {DATA['revision']}\nWorking tree con modifiche: {'sì' if DATA['dirty'] else 'no'}\nImpronta SHA-256 delle sorgenti: {DATA['digest']}\nSorgenti censite: {len(DATA['hashes'])}\nData UTC di generazione: {DATA['generatedAt']}\nL’inventario JSON conserva le impronte per file. I test e le prove fisiche dei servizi restano distinti dalla generazione del manuale.")
 doc.multiBuild(story)

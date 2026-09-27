@@ -11,6 +11,7 @@ Il progetto e l'assistente si chiamano **EYRA**, sempre in maiuscolo nei testi. 
 3. **Mai salvare credenziali personali** (SPID, Cl@ve, certificati, password, PIN, IBAN completi). Le chiavi API stanno solo in `.env`: mai in Turso né in `DEFS` di `lib/config.ts` (lo verifica `npm run check`).
 4. Whitelist WhatsApp + firma `X-Hub-Signature-256` sempre verificate.
 5. `npm run check` deve passare prima di ogni push.
+6. **Manuale PDF aggiornato a ogni sviluppo e deploy**, inclusi correzioni, configurazioni, refactoring e redeploy senza modifiche: revisione delle spiegazioni e rigenerazione riuscita sono obbligatorie prima di concludere il lavoro.
 
 ## Comandi
 ```bash
@@ -47,8 +48,10 @@ npm run build
 
 La logica del dominio (procedure, onboarding, regole) sta nei **markdown della KB**, non nel codice: si migliora l'agente modificando `AGENT.md` e `directives/`.
 
-## Documentazione a ogni sviluppo
+## Documentazione a ogni sviluppo e deploy
 Segui la sezione omonima di `AGENTS.md`: aggiorna `docs/system/catalog.json` e, se pertinente, `lib/dna.ts` insieme al codice. Dopo la revisione delle spiegazioni esegui `npm run docs:update`, poi `npm run check`. Non aggiornare soltanto gli hash senza verificare il contenuto. `npm run docs:pdf` produce il manuale; istruzioni in `docs/system/README.md`. Le specialità sono competenze dello stesso agente, non agenti autonomi separati.
+
+Esegui sempre `npm run docs:pdf` alla fine dello sviluppo. Dopo il commit rigenera il PDF o verifica l’artifact riuscito sullo stesso commit. Per ogni deploy, anche senza push, verifica e rigenera il manuale della versione distribuita (in locale o con il workflow manuale sul relativo ref). Riporta revisione e posizione del PDF; un errore di generazione lascia questa attività incompleta. Non committare gli output generati né includere dati personali.
 
 ## Backlog (in ordine)
 1. Test end-to-end su staging con account di prova (non della titolare).

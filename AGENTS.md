@@ -11,6 +11,7 @@ Il progetto e l'assistente si chiamano **EYRA**, sempre in maiuscolo nei testi. 
 3. **Mai salvare credenziali personali** (SPID, Cl@ve, certificati, password, PIN, IBAN completi). Le chiavi API stanno solo in `.env`: mai in Turso né in `DEFS` di `lib/config.ts` (lo verifica `npm run check`).
 4. Whitelist WhatsApp + firma `X-Hub-Signature-256` sempre verificate.
 5. `npm run check` deve passare prima di ogni push.
+6. **Manuale PDF aggiornato a ogni sviluppo e deploy.** Il lavoro non è completo finché le spiegazioni sono revisionate e il PDF è stato rigenerato con successo dalla versione finale del codice. Vale anche per correzioni, configurazioni, refactoring e redeploy senza modifiche. Segui la procedura qui sotto.
 
 ## Comandi
 ```bash
@@ -48,9 +49,11 @@ npm run build
 
 La logica del dominio (procedure, onboarding, regole) sta nei **markdown della KB**, non nel codice: si migliora l'agente modificando `AGENT.md` e `directives/`.
 
-## Documentazione a ogni sviluppo
+## Documentazione a ogni sviluppo e deploy
 Aggiorna le schede pertinenti in `docs/system/catalog.json` insieme alle modifiche: scopo, ingressi, processo, dati salvati, limiti, autorizzazioni e verifiche. Per nuove aree aggiungi schede e sorgenti; aggiorna `lib/dna.ts` quando cambiano le capacità specialistiche. Non presentare le nove specialità come agenti autonomi.
 Solo dopo aver revisionato le spiegazioni esegui `npm run docs:update`, poi `npm run check`. Non aggiornare l’impronta per nascondere documentazione obsoleta. Il controllo verifica coerenza e copertura, non la correttezza semantica della prosa. `npm run docs:pdf` genera il manuale; quando cambia l’impaginazione o il contenuto, verifica anche il PDF renderizzato. Procedura: `docs/system/README.md`. GitHub Actions genera PDF e inventario a ogni push/PR, senza dati o credenziali reali.
+
+Prima di concludere ogni sviluppo esegui sempre `npm run docs:pdf`, anche quando le schede non richiedono modifiche. Dopo il commit rigenera l’edizione finale oppure verifica l’artifact prodotto con successo da GitHub Actions per quello stesso commit. Prima di dichiarare concluso un deploy verifica che il PDF corrisponda esattamente al codice distribuito; per un redeploy senza push avvia nuovamente la generazione sul commit distribuito, localmente o tramite il workflow manuale sul relativo ref. Non usare un manuale di una revisione diversa e non dichiarare completata la documentazione se la generazione fallisce. Nel riepilogo indica la revisione e dove trovare il PDF. Mantieni PDF e inventario in `output/pdf/` o negli artifact GitHub, esclusi dal repository e privi di dati personali.
 
 ## Backlog (in ordine)
 1. Test end-to-end su staging con account di prova (non della titolare).
