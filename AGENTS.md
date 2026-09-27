@@ -1,7 +1,7 @@
 # AGENTS.md — EYRA
 
 Assistente gestionale personale (fisco IT/ES, immobili, barche, contabilità, bandi, coaching) della **titolare**.
-Stack: Next.js 15 (App Router) su Vercel · Google Drive come archivio markdown · Turso · Gmail · Codex API · WhatsApp Cloud API.
+Stack: Next.js 15 (App Router) su Vercel · Google Drive come archivio markdown · Turso · Gmail · Claude API · WhatsApp Cloud API.
 
 Il progetto e l'assistente si chiamano **EYRA**, sempre in maiuscolo nei testi. `eyra` è l'identificatore tecnico per pacchetti, file e template. Il nome è fisso: `APP_NAME` è una costante in `lib/config.ts`, esclusa dalle impostazioni modificabili. Non accetta override da `/setup`, database o variabili d’ambiente. Nell'interfaccia usa `brand()` / `settings().APP_NAME` e nei prompt `{{NOME}}`, senza duplicare il nome nel codice. Ogni occorrenza visibile del marchio usa il logo `Wordmark`, anche nei titoli, nella navigazione e nel testo (`inline`); conserva il nome testuale negli attributi accessibili, nei metadati e nei valori tecnici. L'occhio principale è un modello 3D geometrico; `public/eyra.png` è il riferimento visivo originale.
 
@@ -28,7 +28,7 @@ npm run build
 | `lib/config.ts` | impostazioni non segrete: DB > env > default; `SECRETS` = elenco env mostrate solo come stato |
 | `lib/kb.ts` | frontmatter, validazione, scadenze ricorrenti, ricerca |
 | `lib/patch.ts` | set/append/create, diff, conflitti, changelog, storage patch in `90-inbox/` |
-| `lib/agent.ts` | loop Codex + tool; system prompt = `AGENT.md` + router + directive dalla KB su Drive |
+| `lib/agent.ts` | loop Claude + tool; system prompt = `AGENT.md` + router + directive dalla KB su Drive |
 | `lib/gmail.ts` | import email con etichetta `GMAIL_LABEL` (PEC inoltrata a Gmail) |
 | `lib/calendar.ts`, `lib/calendar-sync.ts` | lettura Google Calendar e sync unidirezionale delle scadenze confermate; demo senza chiamate Google |
 | `lib/fattura.ts` | parsing FatturaPA `.xml` / `.xml.p7m` |
@@ -47,6 +47,10 @@ npm run build
 | `kb-demo/` | archivio con dati finti (solo sviluppo) |
 
 La logica del dominio (procedure, onboarding, regole) sta nei **markdown della KB**, non nel codice: si migliora l'agente modificando `AGENT.md` e `directives/`.
+
+## Documentazione a ogni sviluppo
+Aggiorna le schede pertinenti in `docs/system/catalog.json` insieme alle modifiche: scopo, ingressi, processo, dati salvati, limiti, autorizzazioni e verifiche. Per nuove aree aggiungi schede e sorgenti; aggiorna `lib/dna.ts` quando cambiano le capacità specialistiche. Non presentare le nove specialità come agenti autonomi.
+Solo dopo aver revisionato le spiegazioni esegui `npm run docs:update`, poi `npm run check`. Non aggiornare l’impronta per nascondere documentazione obsoleta. Il controllo verifica coerenza e copertura, non la correttezza semantica della prosa. `npm run docs:pdf` genera il manuale; quando cambia l’impaginazione o il contenuto, verifica anche il PDF renderizzato. Procedura: `docs/system/README.md`. GitHub Actions genera PDF e inventario a ogni push/PR, senza dati o credenziali reali.
 
 ## Backlog (in ordine)
 1. Test end-to-end su staging con account di prova (non della titolare).

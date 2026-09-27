@@ -47,6 +47,9 @@ npm run build
 
 La logica del dominio (procedure, onboarding, regole) sta nei **markdown della KB**, non nel codice: si migliora l'agente modificando `AGENT.md` e `directives/`.
 
+## Documentazione a ogni sviluppo
+Segui la sezione omonima di `AGENTS.md`: aggiorna `docs/system/catalog.json` e, se pertinente, `lib/dna.ts` insieme al codice. Dopo la revisione delle spiegazioni esegui `npm run docs:update`, poi `npm run check`. Non aggiornare soltanto gli hash senza verificare il contenuto. `npm run docs:pdf` produce il manuale; istruzioni in `docs/system/README.md`. Le specialità sono competenze dello stesso agente, non agenti autonomi separati.
+
 ## Backlog (in ordine)
 1. Test end-to-end su staging con account di prova (non della titolare).
 2. Trascrizione vocali WhatsApp (servizio speech-to-text, da scegliere).

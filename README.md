@@ -30,3 +30,5 @@ Il nome **EYRA** è fisso. Il significato di **EYE + RA** e dell’occhio cosmic
 Password web, whitelist WhatsApp, firma Meta verificata, scritture solo con codice di conferma, nessuna credenziale in archivio, segreti solo in `.env`.
 
 Configurazione, limiti e test: [Chat, voce, memoria e automatismi](docs/chat-automatismi.md).
+
+Il [manuale del sistema](docs/system/README.md) descrive panoramica, architettura, funzioni, strumenti dell’agente e specialità. `npm run docs:pdf` genera il PDF e l’inventario tecnico senza credenziali. Il workflow **Documentazione sistema** li rigenera a ogni push/PR e li conserva negli artifact GitHub; `npm run check` segnala documentazione non aggiornata rispetto alle sorgenti.

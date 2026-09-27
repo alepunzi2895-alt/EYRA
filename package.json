@@ -8,7 +8,11 @@
     "build": "next build",
     "model:export": "node --import tsx scripts/export-eye.ts",
     "start": "next start",
-    "check": "tsc --noEmit && cross-env KB_LOCAL_DIR=./kb-demo node --env-file=.env --import tsx scripts/selftest.ts"
+    "check": "npm run docs:check && tsc --noEmit && cross-env KB_LOCAL_DIR=./kb-demo node --env-file=.env --import tsx scripts/selftest.ts",
+    "docs:check": "node scripts/system-docs.mjs --check && node scripts/system-docs-selftest.mjs",
+    "docs:update": "node scripts/system-docs.mjs --update",
+    "docs:inventory": "node scripts/system-docs.mjs --inventory",
+    "docs:pdf": "node scripts/system-docs.mjs --pdf"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",
