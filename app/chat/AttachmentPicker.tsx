@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { attachmentMime, supportedAttachment, WEB_ATTACHMENT_LIMIT, WEB_ATTACHMENT_COUNT } from "@/lib/attachment-types";
+import Icon from "@/app/components/Icon";
 
 async function prepare(file: File): Promise<File> {
   const mime = attachmentMime(file.name, file.type);
@@ -33,7 +34,7 @@ function Preview({ file, remove, disabled }: { file: File; remove: () => void; d
   }, [file]);
   return <div className="attachment-preview">{url && <a href={url} target="_blank" rel="noreferrer" aria-label={`Apri anteprima ${file.name}`}><img src={url} alt={`Anteprima ${file.name}`} /></a>}<span>{file.name}<small>{Math.ceil(file.size / 1000)} KB</small></span><button type="button" className="sec" disabled={disabled} onClick={remove} aria-label={`Rimuovi ${file.name}`}>×</button></div>;
 }
-export default function AttachmentPicker({ files, onChange, disabled, onProcessing }: { files: File[]; onChange: (files: File[]) => void; disabled: boolean; onProcessing: (busy: boolean) => void }) {
+export default function AttachmentPicker({ files, onChange, disabled, onProcessing, compact = false }: { files: File[]; onChange: (files: File[]) => void; disabled: boolean; onProcessing: (busy: boolean) => void; compact?: boolean }) {
   const upload = useRef<HTMLInputElement>(null), camera = useRef<HTMLInputElement>(null), lock = useRef(false);
   const [error, setError] = useState(""), [preparing, setPreparing] = useState(false);
   async function add(incoming: File[]) {
@@ -49,8 +50,8 @@ export default function AttachmentPicker({ files, onChange, disabled, onProcessi
     } catch(e) { setError(e instanceof Error ? e.message : "Allegato non leggibile."); }
     finally { lock.current = false; setPreparing(false); onProcessing(false); }
   }
-  return <div className="attachment-picker">
-    <div className="attachment-actions"><button type="button" className="sec" disabled={disabled || preparing} onClick={() => upload.current?.click()}>Allega foto o documento</button><button type="button" className="sec" disabled={disabled || preparing} onClick={() => camera.current?.click()}>Scatta foto</button><small>{preparing ? "Preparo le foto…" : "Foto, PDF, Excel · fino a 8 file / 4 MB"}</small></div>
+  return <div className={`attachment-picker${compact ? " attachment-compact" : ""}`}>
+    <div className="attachment-actions"><button type="button" className={compact ? "icon-button" : "sec"} title="Allega foto o documento" aria-label="Allega foto o documento" disabled={disabled || preparing} onClick={() => upload.current?.click()}>{compact ? <Icon name="attach" /> : "Allega foto o documento"}</button><button type="button" className={compact ? "icon-button" : "sec"} title="Scatta foto" aria-label="Scatta foto" disabled={disabled || preparing} onClick={() => camera.current?.click()}>{compact ? <Icon name="camera" /> : "Scatta foto"}</button>{(!compact || preparing) && <small role="status">{preparing ? "Preparo le foto…" : "Foto, PDF, Excel · fino a 8 file / 4 MB"}</small>}</div>
     <input hidden ref={upload} aria-label="Scegli foto o documenti" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,.heic,.heif,.xlsx,.xls,.csv,.txt,.md,.xml,.p7m" onChange={e => { void add(Array.from(e.target.files || [])); e.target.value = ""; }} />
     <input hidden ref={camera} aria-label="Fotografa documento" type="file" accept="image/*" capture="environment" onChange={e => { void add(Array.from(e.target.files || [])); e.target.value = ""; }} />
     {error && <p role="alert">{error}</p>}

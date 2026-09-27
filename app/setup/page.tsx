@@ -5,6 +5,9 @@ import { APP_NAME, detail, DEFS, SECRETS, Key, Group } from "@/lib/config";
 import { dbKind } from "@/lib/db";
 import { Campi, Campo, Verifica, Copia } from "./Campi";
 import Profile from "./Profile";
+import VoiceSettings from "./VoiceSettings";
+import EntitySettings from "./EntitySettings";
+import { emptyEntities, parseEntities } from "@/lib/entities";
 import CalendarSettings from "./CalendarSettings";
 import { readProfile, type UserProfile } from "@/lib/profile";
 import { archiveIssue } from "@/lib/availability";
@@ -16,7 +19,7 @@ const DB_TESTO = {
   turso: "Collegato a Turso. Le impostazioni qui sotto si salvano nel database.",
   assente: "Nessun database: imposta TURSO_DATABASE_URL e TURSO_AUTH_TOKEN in .env, poi riavvia l'app.",
 };
-const SEZIONI = [["generale", "Generale"], ["profilo", "Parlami di te"], ["database", "Database"], ["claude", "Claude"], ["voce", "Voce"], ["google", "Google"], ["calendar", "Calendar"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
+const SEZIONI = [["generale", "Generale"], ["entita", "Pianeti e centri di costo"], ["profilo", "Parlami di te"], ["database", "Database"], ["claude", "Claude"], ["voce", "Voce"], ["google", "Google"], ["calendar", "Calendar"], ["whatsapp", "WhatsApp"], ["telegram", "Telegram"], ["automatismi", "Automatismi"], ["accesso", "Accesso"]];
 
 function Segreti({ group, nonServe = [] }: { group: string; nonServe?: string[] }) {
   return (
@@ -40,6 +43,8 @@ export default async function Setup() {
       key: k, label: DEFS[k].label, help: (DEFS[k] as { help?: string }).help,
       value: val(k), source: d?.[k].source ?? "default", ...extra[k],
     }));
+  let entities = emptyEntities();
+  try { if (val("HOME_ENTITIES")) entities = parseEntities(val("HOME_ENTITIES")); } catch { /* editor can repair invalid configuration */ }
   const nome = APP_NAME;
   const etichetta = val("GMAIL_LABEL") || nome;
   const cartella = val("KB_ROOT_FOLDER_ID");
@@ -67,12 +72,20 @@ export default async function Setup() {
         <Campi campi={campi("generale", { LEARNING_ENABLED: { options: [{ value: "on", label: "Proponi memorie da approvare" }, { value: "off", label: "Non proporre memorie automaticamente" }] } })} bloccato={bloccato} />
       </section>
 
+      <section className="passo" id="entita">
+        <h2>Pianeti e centri di costo</h2>
+        <p>Ogni pianeta rappresenta un centro distinto. Usa volumi economici annui in EUR riferiti allo stesso anno e con lo stesso criterio: gli importi mancanti restano neutri. Questi valori configurano la visualizzazione e non modificano l’archivio contabile.</p>
+        <p>Collega l’ID esatto della scheda entità: rosso per scadenze attive arretrate negli ultimi 90 giorni o entro 3 giorni, ambra entro 14 giorni o documenti da confermare, verde senza segnali nella finestra controllata, grigio se non valutabile. Segna come concluse nell’archivio le scadenze già gestite, tramite proposta approvata.</p>
+        <EntitySettings initial={entities} disabled={bloccato} />
+      </section>
+
       <section className="passo" id="voce">
         <h2>Voce e dettatura</h2>
         <p>Per timbri diversi su iPhone e Android, aggiungi <code>OPENAI_API_KEY</code> nelle variabili Vercel, fai Redeploy e attiva Audio AI. Claude continua a preparare le risposte; OpenAI genera la voce e trascrive le registrazioni, a consumo. La voce è generata dall’AI.</p>
         <Segreti group="voce" />
         <Campi campi={campi("voce", { WEB_AUDIO_PROVIDER: { options: [{ value: "off", label: "Solo servizi del dispositivo" }, { value: "openai", label: "Abilita voci e trascrizione OpenAI" }] } })} bloccato={bloccato} />
-        <p className="aiuto">In demo i servizi audio a pagamento sono disattivati. Safari richiede HTTPS e il permesso microfono. Dal prompt puoi scegliere dettatura del browser o registrazione da trascrivere.</p>
+        <p className="aiuto">In demo i servizi audio a pagamento sono disattivati. Safari richiede HTTPS e il permesso microfono. Qui puoi scegliere la voce, ascoltare l’anteprima e impostare il metodo di dettatura per questo browser.</p>
+        <VoiceSettings />
       </section>
 
       <section className="passo profile-section" id="profilo">

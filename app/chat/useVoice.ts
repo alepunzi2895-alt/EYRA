@@ -42,7 +42,12 @@ export function useVoice() {
       setAvailable(!!window.speechSynthesis || data.enabled === true);
       if (!inputChosen.current && data.enabled && window.isSecureContext && typeof MediaRecorder !== "undefined" && typeof navigator.mediaDevices?.getUserMedia === "function" && RECORDING_MIMES.some(m => MediaRecorder.isTypeSupported(m))) setInputMode("recording");
     }).catch(() => { if (mounted.current && !request.signal.aborted) setCloud({ enabled: false, reason: "Configurazione audio non raggiungibile. Ricarica la pagina per riprovare." }); });
-    try { preferredVoice.current = localStorage.getItem(VOICE_STORAGE) || ""; setSelectedVoice(preferredVoice.current); } catch { /* Storage may be unavailable in private browsing. */ }
+    try {
+      preferredVoice.current = localStorage.getItem(VOICE_STORAGE) || ""; setSelectedVoice(preferredVoice.current);
+      setEnabled(localStorage.getItem("eyra.voice.enabled") === "true");
+      const input = localStorage.getItem("eyra.voice.input");
+      if (input === "browser" || input === "recording") { inputChosen.current = true; setInputMode(input); }
+    } catch { /* Storage may be unavailable in private browsing. */ }
     const synth = window.speechSynthesis;
     const refreshVoices = () => setVoices(synth.getVoices().slice().sort((a, b) => Number(b.lang.startsWith("it")) - Number(a.lang.startsWith("it")) || a.name.localeCompare(b.name, "it")));
     if (synth) { refreshVoices(); synth.addEventListener("voiceschanged", refreshVoices); }
@@ -118,10 +123,10 @@ export function useVoice() {
     enabled, listening: listening || recording.recording, processing: recording.processing, status: recording.status || dictationStatus || status, dictate, push, voices, selectedVoice, cloud, aiVoices: AI_VOICES, inputMode, appleMobile, dictationFailed,
     useKeyboard() { inputChosen.current = true; recognition.current?.dispose(); recording.cancel(); stop(); setListening(false); setDictationFailed(false); setDictationStatus("Tocca il microfono della tastiera iPhone per dettare. Se manca: Impostazioni iPhone → Generali → Tastiera → Abilita dettatura."); },
     record(current: string, update: (text: string) => void) { if (!cloudReady.current || !recording.supported || recording.processing) return; inputChosen.current = true; recognition.current?.dispose(); setListening(false); stop(); setInputMode("recording"); setDictationFailed(false); setDictationStatus(""); void recording.toggle(current, update); },
-    setInputMode(mode: string) { if (listening || recording.recording || recording.processing) return; inputChosen.current = true; setInputMode(mode); recording.clearStatus(); setDictationStatus(""); setDictationFailed(false); setStatus(""); },
+    setInputMode(mode: string) { if (listening || recording.recording || recording.processing) return; inputChosen.current = true; setInputMode(mode); recording.clearStatus(); setDictationStatus(""); setDictationFailed(false); setStatus(""); try { localStorage.setItem("eyra.voice.input", mode); } catch { /* session only */ } },
     selectVoice, preview,
     previewDevice() { if (recording.recording || recording.processing) return; selectVoice(""); preview(); },
-    toggle() { stop(); recording.clearStatus(); unlock(); setEnabled(!enabled); setStatus(""); if (!enabled) speak("Voce attiva."); },
+    toggle() { stop(); recording.clearStatus(); unlock(); setEnabled(!enabled); setStatus(""); try { localStorage.setItem("eyra.voice.enabled", String(!enabled)); } catch { /* session only */ } if (!enabled) speak("Voce attiva."); },
     begin() { stop(); recording.clearStatus(); setDictationStatus(""); unlock(); active.current = enabled; },
     reset() { buffer.current = ""; },
     stop() { stop(); recording.clearStatus(); setStatus(""); },

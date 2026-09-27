@@ -1,4 +1,5 @@
 import { db, dbConfigured } from "./db";
+import { parseEntities } from "./entities";
 
 /** Identità fissa del progetto: non è un'impostazione né una variabile d'ambiente. */
 export const APP_NAME = "EYRA" as const;
@@ -8,7 +9,7 @@ export const APP_NAME = "EYRA" as const;
  * Precedenza: valore salvato nel DB (Turso) > variabile d'ambiente > default.
  * I segreti NON passano da qui: restano solo in .env (vedi SECRETS).
  */
-export type Group = "generale" | "claude" | "google" | "calendar" | "whatsapp" | "telegram" | "automatismi" | "voce";
+export type Group = "generale" | "claude" | "google" | "calendar" | "whatsapp" | "telegram" | "automatismi" | "voce" | "entita";
 type Def = { label: string; group: Group; def: string; help?: string; norm?: (v: string) => string; check?: RegExp; err?: string };
 
 const csv = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean).join(",");
@@ -16,6 +17,7 @@ const phones = (v: string) => v.split(",").map((s) => s.replace(/[\s+\-().]/g, "
 const line = (v: string) => v.replace(/\s+/g, " ").trim();
 
 export const DEFS = {
+  HOME_ENTITIES: { label: "Pianeti dei centri di costo", group: "entita", def: "", help: "Quattro centri distinti, volume economico annuo in EUR per lo stesso anno, ID archivio e peculiarità. Impostazioni della visualizzazione, non registrazioni contabili." },
   WEB_AUDIO_PROVIDER: { label: "Audio AI nel sito", group: "voce", def: "off", check: /^(off|openai)$/, err: "off oppure openai", help: "OpenAI aggiunge 13 timbri e trascrizione delle registrazioni. Richiede una chiave separata e credito API. Testo e audio sono inviati a OpenAI. Le voci del dispositivo restano disponibili." },
   AUTO_BRIEFING: { label: "Briefing del mattino", group: "automatismi", def: "off", check: /^(on|off)$/, err: "on oppure off" },
   AUTO_WEEKLY: { label: "Riepilogo settimanale (domenica)", group: "automatismi", def: "off", check: /^(on|off)$/, err: "on oppure off" },
@@ -135,6 +137,7 @@ export async function save(values: Partial<Record<Key, string>>, who: string): P
     if (v && d.check && !d.check.test(v)) { errors[k] = d.err ?? "valore non valido"; continue; }
     if (k === "REMINDER_DAYS" && v && list(v).some((n) => +n > 90)) { errors[k] = "max 90 giorni"; continue; }
     if (k === "AUTO_TIMEZONE" && v) { try { new Intl.DateTimeFormat("it", { timeZone: v }); } catch { errors[k] = "Fuso orario non valido"; continue; } }
+    if (k === "HOME_ENTITIES" && v) { try { parseEntities(v); } catch (error) { errors[k] = error instanceof Error ? error.message : "Pianeti non validi"; continue; } }
     clean.push([k, v]);
   }
   if (Object.keys(errors).length) return { ok: false, errors };

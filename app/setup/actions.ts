@@ -19,6 +19,15 @@ export async function proponiProfilo(fd: FormData): Promise<{ code?: string; dif
 
 export type Esito = { ok?: string; error?: string; errors?: Partial<Record<Key, string>> };
 
+export async function salvaPianeti(value: string): Promise<Esito> {
+  const cookie = (await cookies()).get("auth")?.value;
+  if (!cookie || cookie !== await authToken()) return { error: "Sessione scaduta. Accedi di nuovo." };
+  const result = await save({ HOME_ENTITIES: value }, "web");
+  if (!result.ok) return { error: result.errors.HOME_ENTITIES || "Database non disponibile." };
+  revalidatePath("/", "layout");
+  return { ok: "Pianeti aggiornati. La visualizzazione usa valori dello stesso anno in EUR." };
+}
+
 export async function salva(fd: FormData): Promise<Esito> {
   const values: Partial<Record<Key, string>> = {};
   for (const k of KEYS) if (fd.has(k)) values[k] = String(fd.get(k) ?? "");

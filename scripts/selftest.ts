@@ -11,6 +11,7 @@ let fail = 0;
 const ok = (c: unknown, m: string) => { console.log(`${c ? "✓" : "✗"} ${m}`); if (!c) fail++; };
 
 (async () => {
+  (await import("./entities-selftest")).testEntities();
   await (await import("./auth-selftest")).testAuth();
   await (await import("./connections-selftest")).testConnections();
   await (await import("./calendar-selftest")).testCalendar();
